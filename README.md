@@ -110,6 +110,14 @@ deduplicates, and credits you in `CONTRIBUTORS.md`. A PII guard aborts the
 upload if any disallowed field is present. See [`DATA_POLICY.md`](DATA_POLICY.md)
 for the full keep/strip list.
 
+**One step from a scrape:** `scrape.py … --contribute --token <hf>` runs the same
+anonymized upload right after scraping. It's **token-gated and always announced**
+— never a silent background push. To make it habitual, set
+`scraper.auto_contribute: true` in `scoring-config.json` (still requires a token;
+still prints what it's sharing). And `scrape.py … --append` **accumulates** each
+scrape into the local file (de-duped) instead of overwriting it, so you can build
+a bigger local benchmark over several runs.
+
 ### Refreshing from the community dataset (the read side)
 
 As the shared dataset grows, pull it back into your local sample to improve

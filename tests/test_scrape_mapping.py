@@ -99,5 +99,22 @@ class TestMapKyurish(unittest.TestCase):
         self.assertIsNone(row["premium_price"])
 
 
+class TestAccumulate(unittest.TestCase):
+    def _row(self, title, cat="Programming & Tech", sub="X"):
+        return {"title": title, "category": cat, "subcategory": sub, "basic_price": 10}
+
+    def test_appends_new_and_dedupes(self):
+        existing = [self._row("a"), self._row("b")]
+        new = [self._row("b"), self._row("c")]  # b is a dup
+        merged = scrape.accumulate(existing, new)
+        titles = [r["title"] for r in merged]
+        self.assertEqual(titles, ["a", "b", "c"])  # existing first, only new c added
+
+    def test_distinguishes_by_subcategory(self):
+        existing = [self._row("a", sub="X")]
+        new = [self._row("a", sub="Y")]  # same title, different subcategory -> kept
+        self.assertEqual(len(scrape.accumulate(existing, new)), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

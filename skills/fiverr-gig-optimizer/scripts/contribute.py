@@ -107,7 +107,12 @@ def open_hf_pr(rows, repo, token, contributor):
 
     repo_id = repo.rstrip("/").split("datasets/")[-1]
     payload = json.dumps(rows, ensure_ascii=False, indent=2).encode("utf-8")
-    fname = f"contributions/{contributor.replace(' ', '_')}.json"
+    # Unique per-contribution filename (content hash) so repeated contributions
+    # and parallel PRs never overwrite each other on merge; identical data
+    # re-contributed maps to the same file (idempotent).
+    digest = hashlib.sha256(payload).hexdigest()[:10]
+    safe = contributor.replace(" ", "_")
+    fname = f"contributions/{safe}-{digest}.json"
     api = HfApi(token=token)
     commit = api.create_commit(
         repo_id=repo_id,

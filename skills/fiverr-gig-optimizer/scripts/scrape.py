@@ -91,6 +91,24 @@ def _packages_to_tiers(packages, fx, duration_in_hours=True):
     return out
 
 
+def accumulate(existing, new):
+    """Merge new canonical rows into existing, de-duped by title|category|subcategory.
+
+    Existing rows are kept first; genuinely new rows are appended. Used by
+    --append so repeated scrapes grow a local file instead of overwriting it.
+    """
+    def key(r):
+        return (r.get("title"), r.get("category"), r.get("subcategory"))
+    seen = {key(r) for r in existing}
+    merged = list(existing)
+    for r in new:
+        if key(r) in seen:
+            continue
+        seen.add(key(r))
+        merged.append(r)
+    return merged
+
+
 def map_kyurish(search_item, detail, total_results, category_override, fx, today):
     """Build a canonical row (§7.1) from a KyuRish search item + gig detail."""
     detail = detail or {}
@@ -239,6 +257,12 @@ def main(argv=None):
     ap.add_argument("--api-key", help="Apify token (or APIFY_TOKEN). Fallback only.")
     ap.add_argument("--actor-id", help="Override Apify actor id.")
     ap.add_argument("--out", default=DEFAULT_OUT)
+    ap.add_argument("--append", action="store_true",
+                    help="Accumulate into --out (de-duped) instead of overwriting it.")
+    ap.add_argument("--contribute", action="store_true",
+                    help="After scraping, push anonymized rows to the HF dataset (opt-in).")
+    ap.add_argument("--contributor", default="anonymous", help="Credited name for --contribute.")
+    ap.add_argument("--token", help="HF write token for --contribute (or HF_TOKEN, or cached login).")
     ap.add_argument("--config")
     args = ap.parse_args(argv)
 
@@ -273,11 +297,47 @@ def main(argv=None):
                             scraper_cfg["base_url"], actor_id, fx, today)
 
     rows = [r for r in rows if r.get("title")]
+    fresh = len(rows)
+
+    # --append: accumulate into the existing file (de-duped) instead of overwriting.
+    if args.append and os.path.exists(args.out):
+        try:
+            with open(args.out, encoding="utf-8") as fh:
+                existing = json.load(fh)
+        except (json.JSONDecodeError, OSError):
+            existing = []
+        before = len(existing)
+        rows = accumulate(existing, rows)
+        print(f"append: {before} existing + {fresh} scraped -> {len(rows)} rows "
+              f"(+{len(rows) - before} new).", file=sys.stderr)
+
     with open(args.out, "w", encoding="utf-8") as fh:
         json.dump(rows, fh, indent=2, ensure_ascii=False)
     counts = {r["gig_count_in_search"] for r in rows if r.get("gig_count_in_search")}
     print(f"Wrote {len(rows)} canonical rows to {args.out} "
           f"(gig_count_in_search: {sorted(counts) or 'null'}).")
+
+    # --contribute (flag) or scraper.auto_contribute (config): opt-in, token-gated,
+    # and always announced — never a silent background upload.
+    do_contribute = args.contribute or scraper_cfg.get("auto_contribute", False)
+    if do_contribute:
+        import contribute
+        token = args.token or os.environ.get("HF_TOKEN")
+        if not token:
+            print("note: --contribute/auto_contribute is on but no HF token was found "
+                  "(--token / HF_TOKEN / cached login) — skipping upload, nothing shared.",
+                  file=sys.stderr)
+        else:
+            cleaned = contribute.clean_and_dedup(rows, set())
+            contribute.assert_no_pii(cleaned)
+            if not cleaned:
+                print("note: nothing to contribute after cleaning.", file=sys.stderr)
+            else:
+                print(f"Contributing {len(cleaned)} anonymized rows to the community "
+                      f"dataset as '{args.contributor}' ...", file=sys.stderr)
+                pr = contribute.open_hf_pr(cleaned, cfg["dataset_repo"], token, args.contributor)
+                contribute.append_contributor(args.contributor)
+                print(f"Opened contribution PR: {pr}")
     return 0
 
 

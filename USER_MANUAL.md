@@ -141,7 +141,16 @@ python3 scripts/scrape.py --query "ai chatbot" --engine apify --limit 30
 ```
 
 `scrape.py` writes `benchmarks.local.json` (USD-normalized canonical rows).
-`build_benchmarks.py` turns it into `pricing-pools.local.json` and
+**By default each scrape overwrites that file.** Two flags change that:
+
+- `--append` — accumulate into the file (de-duped) instead of overwriting, so
+  several scrapes build one bigger local benchmark.
+- `--contribute --token <hf>` — after scraping, push the anonymized rows to the
+  community dataset in one step (opt-in, token-gated, and announced — never
+  silent). Set `scraper.auto_contribute: true` in `scoring-config.json` to make
+  it the default for every scrape (still needs a token).
+
+`build_benchmarks.py` turns the file into `pricing-pools.local.json` and
 `dataset-index.local.json`. All `*.local.json` files stay on your machine
 (they're git-ignored). Scraping is **your responsibility** under Fiverr's ToS —
 see [`DATA_POLICY.md`](DATA_POLICY.md).

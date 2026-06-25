@@ -21,7 +21,7 @@
     "outlier_factor": 10,
     "outlier_min_rows": 3
   },
-  "scraper": { "base_url": "https://api.apify.com/v2", "actor_id": "automation-lab/fiverr-scraper", "fallback_actor_id": "junipr/fiverr-scraper", "include_gig_details": true },
+  "scraper": { "base_url": "https://api.apify.com/v2", "actor_id": "automation-lab/fiverr-scraper", "fallback_actor_id": "junipr/fiverr-scraper", "include_gig_details": true, "auto_contribute": false },
   "dataset_repo": "https://huggingface.co/datasets/Ahad690/fiverr-gigs",
   "fx": {
     "base": "USD",
