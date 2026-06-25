@@ -51,6 +51,13 @@ Run scripts as: `python3 ${CLAUDE_SKILL_DIR}/scripts/<name>.py ...`
 existing gig URLs or "none"; monthly revenue goal; experience level
 (New / L1 / L2 / Top Rated). If fewer than 3 services, ask for more.
 
+**Step 1b — Optional profile import.** If the user gives their Fiverr profile
+URL, run `import_profile.py --url "<url>"` to pre-fill name, seller level, and
+their existing gigs *with current prices/tags* (public data only — no private
+analytics). Use `existing_gigs` to optimize what they already have and
+`suggested_services` as keyword seeds; still ask for the revenue goal and any
+new services. Skip if no link is given — never require it.
+
 **Step 2 — Generate keyword candidates (FR6a).** From the services, propose
 single-service keywords and 2-way (sometimes 3-way) combos, following
 `references/fiverr-seo-playbook.md`. These are *search candidates, not

@@ -148,6 +148,29 @@ see [`DATA_POLICY.md`](DATA_POLICY.md).
 
 ---
 
+## 5b. Import your existing Fiverr profile (optional)
+
+If you already sell on Fiverr, paste your profile link and the skill pre-fills
+Step 1 — name, seller level, and your existing gigs **with their current
+prices** — instead of making you type it all out:
+
+```
+python3 scripts/import_profile.py --url https://www.fiverr.com/<username>
+```
+
+What you get back: your display name, member-since, each existing gig's
+three-tier packages (price + delivery), tags, and a list of `suggested_services`
+(keyword seeds drawn from your own gig tags). The skill then benchmarks **your**
+prices against the live market and can rewrite the gigs you already have.
+
+- **Public data only.** It never logs in and cannot see private analytics
+  (impressions, clicks, conversion, earnings) — you'll still be asked for your
+  revenue goal.
+- Same engine as Path C: works from a residential IP; set `PROXY_URL` otherwise.
+- Strictly opt-in — used only when you provide the link.
+
+---
+
 ## 6. Reading the output
 
 Each gig in the catalog carries:
@@ -177,6 +200,9 @@ python3 scripts/score_keyword.py --keyword "ai chatbot n8n" --gig-count 24
 
 # Look a keyword up in the sample dataset
 python3 scripts/query_dataset.py --keyword "ai chatbot n8n"
+
+# Import your own public Fiverr profile + each gig's current prices
+python3 scripts/import_profile.py --url https://www.fiverr.com/<username>
 
 # Price a category from a per-tier price file.
 # --category is a top-level key in pricing-pools.local.json, formatted
@@ -264,6 +290,7 @@ keep/strip list: [`DATA_POLICY.md`](DATA_POLICY.md).
 | **`authentication failed` during scrape** | Only the **Apify fallback** (`--engine apify`) needs a key. Check `--api-key` or `APIFY_TOKEN`. The default engine needs no key. |
 | **`no actor_id configured`** | Apify fallback only: set `scraper.actor_id` in `scoring-config.json` or pass `--actor-id`. |
 | **`huggingface_hub is required`** | `pip install -r requirements.txt` before contributing. |
+| **Profile import returns 0 gigs** | Usually a transient block (the script warns you). Retry; if you're not on a residential IP, set `PROXY_URL` first. |
 | **Catalog opens but a thumbnail looks blank** | Make sure the gig's `img` block has `headline`/`accent`; re-run the skill if you hand-edited `gig-config.json`. |
 
 ---

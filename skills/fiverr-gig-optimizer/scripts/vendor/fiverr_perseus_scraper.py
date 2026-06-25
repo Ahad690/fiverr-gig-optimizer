@@ -354,7 +354,10 @@ class FiverrScraper:
         gigs = []
         for gig in gigs_data:
             if isinstance(gig, dict):
-                gig_url = gig.get("url", "")
+                # LOCAL FIX (fiverr-gig-optimizer): current Fiverr profile
+                # gigsData uses "gig_url", not "url"; without this every profile
+                # gig comes back with an empty URL. See vendor/NOTICE.md.
+                gig_url = gig.get("gig_url") or gig.get("url") or ""
                 if gig_url and not gig_url.startswith("http"):
                     gig_url = f"{self.BASE_URL}{gig_url}"
                 gigs.append({

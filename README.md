@@ -58,6 +58,22 @@ with `claude plugin validate .`.
   `scoring-config.json`. It **cannot** supply the search total (use a manual
   count for that). Scraping costs are yours.
 
+### Import your existing Fiverr profile (optional)
+
+Already selling? Paste your profile link and the skill pre-fills Step 1 instead
+of asking you to type everything:
+
+```
+python3 scripts/import_profile.py --url https://www.fiverr.com/<username>
+```
+
+It returns your display name, seller level, and **each existing gig with its
+current packages (prices, delivery, tags)** plus service seeds for keyword
+ideas — so the skill can benchmark *your* prices against the market and rewrite
+gigs you already have. **Public data only:** no login, and no private analytics
+(impressions, clicks, earnings). Same residential-IP/`PROXY_URL` rules as the
+scrape engine.
+
 ## Scoring (auditable, tunable)
 
 All constants live in `references/scoring-config.json`.
