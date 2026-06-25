@@ -204,6 +204,9 @@ python3 scripts/query_dataset.py --keyword "ai chatbot n8n"
 # Import your own public Fiverr profile + each gig's current prices
 python3 scripts/import_profile.py --url https://www.fiverr.com/<username>
 
+# Pull the community dataset into your local sample (validated + gated)
+python3 scripts/refresh_dataset.py --dry-run
+
 # Price a category from a per-tier price file.
 # --category is a top-level key in pricing-pools.local.json, formatted
 # "Category > Subcategory" exactly as it appears in your data (open the file
@@ -275,6 +278,31 @@ A PII guard strips every seller-identifying field (username, profile/gig URLs,
 country, review text, IDs, images) before anything leaves your machine and
 aborts if any slips through. You're credited in `CONTRIBUTORS.md`. Full
 keep/strip list: [`DATA_POLICY.md`](DATA_POLICY.md).
+
+---
+
+## 9b. Refreshing from the community dataset (the read side)
+
+Contribution sends data *up* to the shared Hugging Face dataset. This pulls it
+*back down* so your local sample (Path A) keeps improving as the dataset grows:
+
+```
+python3 scripts/refresh_dataset.py --dry-run   # preview: shows what would merge
+python3 scripts/refresh_dataset.py             # validate + merge clean new rows
+```
+
+It is deliberately cautious — it only uses data that is:
+
+- **Uncorrupted** — every row is schema-checked (required fields, sane numbers,
+  no PII). If a file won't parse, or too many rows are malformed
+  (`--max-corrupt-ratio`, default 25%), it **refuses and leaves your file
+  untouched**.
+- **Sufficient** — if there aren't at least `--min-new` clean, genuinely new
+  rows (after de-duplication), it does nothing.
+
+Scoring still reads your local file afterwards, so results stay deterministic.
+(The dataset is empty until contributions arrive, so today this is a clean
+no-op.)
 
 ---
 

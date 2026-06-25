@@ -30,8 +30,9 @@ KEEP = [
 # §7.3 — must NEVER appear in output (asserted before any upload).
 FORBIDDEN = [
     "seller_username", "seller_name", "seller_display_name", "profile_url",
-    "gig_url", "profile_photo_url", "seller_country", "review_text",
-    "reviews", "image_url", "image_urls", "id", "gig_id", "seller_id",
+    "gig_url", "seller_url", "profile_photo_url", "freelancers_link",
+    "seller_country", "review_text", "reviews", "image_url", "image_urls",
+    "id", "gig_id", "seller_id",
 ]
 
 

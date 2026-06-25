@@ -110,6 +110,22 @@ deduplicates, and credits you in `CONTRIBUTORS.md`. A PII guard aborts the
 upload if any disallowed field is present. See [`DATA_POLICY.md`](DATA_POLICY.md)
 for the full keep/strip list.
 
+### Refreshing from the community dataset (the read side)
+
+As the shared dataset grows, pull it back into your local sample to improve
+Path A results:
+
+```
+python3 scripts/refresh_dataset.py             # validate + merge clean new rows
+python3 scripts/refresh_dataset.py --dry-run   # preview only, write nothing
+```
+
+It merges only data that is **uncorrupted** (every row is schema-validated; a
+file that won't parse or a corrupt fraction above `--max-corrupt-ratio` is
+**refused**, leaving your local file untouched) and **sufficient** (it no-ops if
+there are fewer than `--min-new` clean, new rows). Scoring keeps reading the
+local file afterwards, so determinism is preserved — the file just gets richer.
+
 ## No ML, no auto-scraping, no guessed numbers
 
 - No machine learning, training, or ranking prediction — scoring is rule-based.
