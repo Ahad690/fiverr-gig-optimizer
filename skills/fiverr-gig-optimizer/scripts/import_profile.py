@@ -123,7 +123,10 @@ def import_profile(url_or_name, cfg, limit=20, today=None):
               f"retry, or set PROXY_URL if you are not on a residential IP.",
               file=sys.stderr)
 
-    levels = [g["seller_level"] for g in existing if g.get("seller_level")]
+    # seller_level: prefer the profile's gigsData value (reliable), fall back to
+    # the per-gig detail level; None -> the skill asks the user.
+    levels = [g.get("seller_level") for g in (profile.get("gigs") or []) if g.get("seller_level")]
+    levels += [g["seller_level"] for g in existing if g.get("seller_level")]
     seller_level = collections.Counter(levels).most_common(1)[0][0] if levels else None
 
     return {

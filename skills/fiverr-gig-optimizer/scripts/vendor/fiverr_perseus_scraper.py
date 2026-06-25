@@ -364,6 +364,9 @@ class FiverrScraper:
                     "title": gig.get("title", ""),
                     "url": gig_url,
                     "rating": float(gig.get("rating", 0) or 0),
+                    # LOCAL ADD (fiverr-gig-optimizer): surface seller_level,
+                    # which profile gigsData carries. See vendor/NOTICE.md.
+                    "seller_level": gig.get("seller_level", ""),
                 })
 
         # Certifications
