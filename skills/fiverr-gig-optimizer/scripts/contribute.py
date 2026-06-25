@@ -23,7 +23,8 @@ import sys
 # §7.3 — the ONLY fields that may ever leave the user's machine.
 KEEP = [
     "scraped_at", "category", "subcategory", "title", "seller_level",
-    "rating", "review_count", "basic_price", "standard_price", "premium_price",
+    "seller_country", "rating", "review_count",
+    "basic_price", "standard_price", "premium_price",
     "basic_delivery_days", "standard_delivery_days", "premium_delivery_days",
     "tags", "gig_count_in_search", "currency", "original_currency",
 ]
@@ -31,7 +32,7 @@ KEEP = [
 FORBIDDEN = [
     "seller_username", "seller_name", "seller_display_name", "profile_url",
     "gig_url", "seller_url", "profile_photo_url", "freelancers_link",
-    "seller_country", "review_text", "reviews", "image_url", "image_urls",
+    "review_text", "reviews", "image_url", "image_urls",
     "id", "gig_id", "seller_id",
 ]
 

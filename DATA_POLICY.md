@@ -8,10 +8,15 @@ user account data, and it never scrapes by default.
 When you use the live scrape (opt-in, your own key) or contribute data, only
 **public listing metadata** is processed. The canonical record (PRD §7.1) is:
 
-`scraped_at, category, subcategory, title, seller_level, rating, review_count,
-basic_price, standard_price, premium_price, basic_delivery_days,
-standard_delivery_days, premium_delivery_days, tags, gig_count_in_search,
-currency, original_currency`.
+`scraped_at, category, subcategory, title, seller_level, seller_country,
+rating, review_count, basic_price, standard_price, premium_price,
+basic_delivery_days, standard_delivery_days, premium_delivery_days, tags,
+gig_count_in_search, currency, original_currency`.
+
+`seller_country` is a coarse market signal (a country code) kept for regional
+pricing analysis. It is *not* tied to a username, profile, or any other
+identifier — those are always stripped (below) — so a row cannot be traced back
+to a specific seller.
 
 ## What is kept vs stripped on contribution
 
@@ -20,8 +25,8 @@ Contribution is **opt-in** and defaults to nothing. When you contribute,
 seller-identifying fields before anything leaves your machine:
 
 **Dropped (hard requirement):** seller username, seller display name, profile
-URL, gig URL, profile photo URL, seller country, any free-text review content,
-any image URLs, any ID fields.
+URL, gig URL, seller profile URL, profile photo URL, any free-text review
+content, any image URLs, any ID fields.
 
 A PII guard (`assert_no_pii`) runs before any upload and aborts if a non-keep
 field is present. Use `contribute.py --dry-run` to inspect the exact cleaned,

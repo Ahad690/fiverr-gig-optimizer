@@ -120,6 +120,7 @@ def map_kyurish(search_item, detail, total_results, category_override, fx, today
         "subcategory": detail.get("sub_category"),
         "title": detail.get("title") or search_item.get("title"),
         "seller_level": seller.get("level") or search_item.get("seller_level") or None,
+        "seller_country": seller.get("country") or None,
         "rating": detail.get("rating") if detail.get("rating") else search_item.get("rating"),
         "review_count": detail.get("reviews_count")
         if detail.get("reviews_count") is not None else search_item.get("reviews_count"),
@@ -163,6 +164,7 @@ def map_apify(item, total_results, category_override, fx, today):
         "subcategory": item.get("subCategoryId") or item.get("subcategory"),
         "title": item.get("title"),
         "seller_level": item.get("sellerLevel") or item.get("seller_level"),
+        "seller_country": item.get("sellerCountry") or item.get("seller_country"),
         "rating": item.get("sellerRating") or item.get("rating"),
         "review_count": item.get("sellerReviewCount") or item.get("review_count"),
         **tiers,

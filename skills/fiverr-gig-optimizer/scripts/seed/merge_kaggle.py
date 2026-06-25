@@ -27,7 +27,8 @@ import sys
 
 CANONICAL_FIELDS = [
     "scraped_at", "category", "subcategory", "title", "seller_level",
-    "rating", "review_count", "basic_price", "standard_price", "premium_price",
+    "seller_country", "rating", "review_count",
+    "basic_price", "standard_price", "premium_price",
     "basic_delivery_days", "standard_delivery_days", "premium_delivery_days",
     "tags", "gig_count_in_search", "currency", "original_currency",
 ]

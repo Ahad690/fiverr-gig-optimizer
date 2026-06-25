@@ -65,6 +65,7 @@ def map_existing_gig(detail, fx):
         "category": detail.get("category"),
         "subcategory": detail.get("sub_category"),
         "seller_level": (detail.get("seller") or {}).get("level"),
+        "seller_country": (detail.get("seller") or {}).get("country"),
         "rating": detail.get("rating"),
         "review_count": detail.get("reviews_count"),
         "tags": [t.lower() for t in (detail.get("tags") or []) if t],

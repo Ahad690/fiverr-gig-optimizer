@@ -60,6 +60,21 @@ class TestPartition(unittest.TestCase):
         self.assertNotIn("harmless_extra", valid[0])  # rebuilt from keep-list
 
 
+class TestSellerCountryKept(unittest.TestCase):
+    def test_in_keep_not_forbidden(self):
+        import contribute
+        self.assertIn("seller_country", contribute.KEEP)
+        self.assertNotIn("seller_country", contribute.FORBIDDEN)
+
+    def test_survives_validation_and_strip(self):
+        import contribute
+        row = dict(GOOD, seller_country="PK")
+        ok, _ = rd.validate_row(row)
+        self.assertTrue(ok)
+        valid, _ = rd.partition_rows([row])
+        self.assertEqual(valid[0].get("seller_country"), "PK")
+
+
 class TestDecide(unittest.TestCase):
     def test_file_errors_abort(self):
         v = rd.decide(seen=10, invalid_count=0, new_after_dedup=10,

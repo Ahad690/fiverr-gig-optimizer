@@ -86,6 +86,7 @@ class TestMapKyurish(unittest.TestCase):
     def test_metadata_and_normalization(self):
         self.assertEqual(self.row["category"], "Programming & Tech")
         self.assertEqual(self.row["subcategory"], "AI Development")
+        self.assertEqual(self.row["seller_country"], "US")
         self.assertEqual(self.row["review_count"], 865)
         self.assertEqual(self.row["tags"], ["ai chatbot", "ai developer", "openai"])
         self.assertEqual(self.row["currency"], "USD")
