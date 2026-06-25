@@ -11,6 +11,16 @@
     "new_seller": { "basic_p": 10, "standard_p": 25, "premium_p": 50 }
   },
   "lookup": { "match_threshold": 0.5, "min_rows": 5, "top_n": 10 },
+  "automerge": {
+    "max_rows_per_pr": 2000,
+    "max_price": 50000,
+    "max_review_count": 1000000,
+    "max_gig_count": 5000000,
+    "min_unique_ratio": 0.5,
+    "ordering_violation_max_ratio": 0.3,
+    "outlier_factor": 10,
+    "outlier_min_rows": 3
+  },
   "scraper": { "base_url": "https://api.apify.com/v2", "actor_id": "automation-lab/fiverr-scraper", "fallback_actor_id": "junipr/fiverr-scraper", "include_gig_details": true },
   "dataset_repo": "https://huggingface.co/datasets/Ahad690/fiverr-gigs",
   "fx": {

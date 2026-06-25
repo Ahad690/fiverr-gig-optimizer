@@ -28,10 +28,13 @@ Exit: 0 always unless a usage/setup error (1).
 import argparse
 import json
 import os
+import statistics
 import sys
 
 import contribute       # row_hash, strip_pii
 import refresh_dataset as rd  # validate_row, partition_rows
+
+TIER_PRICE = ("basic_price", "standard_price", "premium_price")
 
 
 def default_config_path():
@@ -67,8 +70,84 @@ def additive_only(added, removed, modified):
     return True, "additive contributions only"
 
 
+def reference_medians(rows):
+    """{category -> median basic_price} from a reference dataset (e.g. local sample)."""
+    by_cat = {}
+    for r in rows:
+        cat, price = r.get("category"), r.get("basic_price")
+        if cat and isinstance(price, (int, float)):
+            by_cat.setdefault(cat, []).append(price)
+    return {c: statistics.median(v) for c, v in by_cat.items() if v}
+
+
+def abuse_scan(rows, reference_rows, acfg):
+    """Stateless anti-abuse heuristics. Returns a list of reasons ([] = clean).
+
+    Schema validation already covers PII / types / negatives / ranges. These
+    catch *suspicious-but-well-formed* submissions and route them to a human:
+      - absurd absolute values (price/review/gig-count ceilings)
+      - too many price-ordering violations (basic<=standard<=premium)
+      - duplicate flooding (low unique ratio)
+      - per-category median price that is a wild outlier vs the reference data
+    """
+    reasons = []
+    if not rows:
+        return reasons
+
+    max_price = acfg.get("max_price", 50000)
+    max_reviews = acfg.get("max_review_count", 1_000_000)
+    max_gig = acfg.get("max_gig_count", 5_000_000)
+
+    # Absolute ceilings.
+    for r in rows:
+        for k in TIER_PRICE:
+            v = r.get(k)
+            if isinstance(v, (int, float)) and v > max_price:
+                reasons.append(f"price {k}={v} exceeds ceiling {max_price}")
+                break
+        rc, gc = r.get("review_count"), r.get("gig_count_in_search")
+        if isinstance(rc, (int, float)) and rc > max_reviews:
+            reasons.append(f"review_count {rc} exceeds ceiling {max_reviews}")
+        if isinstance(gc, (int, float)) and gc > max_gig:
+            reasons.append(f"gig_count_in_search {gc} exceeds ceiling {max_gig}")
+
+    # Price-ordering violations (basic <= standard <= premium where present).
+    viol = 0
+    for r in rows:
+        b, s, p = (r.get("basic_price"), r.get("standard_price"), r.get("premium_price"))
+        seq = [x for x in (b, s, p) if isinstance(x, (int, float))]
+        if len(seq) >= 2 and any(a > c for a, c in zip(seq, seq[1:])):
+            viol += 1
+    if rows and viol / len(rows) > acfg.get("ordering_violation_max_ratio", 0.3):
+        reasons.append(f"{viol}/{len(rows)} rows violate basic<=standard<=premium")
+
+    # Duplicate flooding.
+    if len(rows) >= 5:
+        uniq = len({contribute.row_hash(contribute.strip_pii(r)) for r in rows})
+        ratio = uniq / len(rows)
+        if ratio < acfg.get("min_unique_ratio", 0.5):
+            reasons.append(f"only {uniq}/{len(rows)} unique rows (duplicate flooding)")
+
+    # Per-category price-median outlier vs reference distribution.
+    ref = reference_medians(reference_rows or [])
+    factor = acfg.get("outlier_factor", 10)
+    min_rows = acfg.get("outlier_min_rows", 3)
+    pr_by_cat = {}
+    for r in rows:
+        if isinstance(r.get("basic_price"), (int, float)) and r.get("category"):
+            pr_by_cat.setdefault(r["category"], []).append(r["basic_price"])
+    for cat, prices in pr_by_cat.items():
+        if cat in ref and ref[cat] > 0 and len(prices) >= min_rows:
+            med = statistics.median(prices)
+            r = med / ref[cat]
+            if r > factor or r < 1 / factor:
+                reasons.append(f"category '{cat}' median ${med:.0f} is {r:.1f}x the "
+                               f"reference ${ref[cat]:.0f} (outlier)")
+    return reasons
+
+
 def pr_verdict(added, removed, modified, rows, invalid_count, valid_new,
-               file_errors, max_rows, max_corrupt_ratio):
+               file_errors, max_rows, max_corrupt_ratio, abuse_reasons=None):
     """Return {action: merge|hold, status, reason}."""
     ok, why = additive_only(added, removed, modified)
     if not ok:
@@ -78,11 +157,14 @@ def pr_verdict(added, removed, modified, rows, invalid_count, valid_new,
                 "reason": f"{rows} rows > max {max_rows}"}
     gate = rd.decide(rows, invalid_count, valid_new, min_new=1,
                      max_corrupt_ratio=max_corrupt_ratio, file_errors=file_errors)
-    if gate["action"] == "merge":
-        return {"action": "merge", "status": "ok",
-                "reason": f"{valid_new} clean new row(s); validated"}
-    # corrupt / empty / insufficient all -> hold for a human
-    return {"action": "hold", "status": gate["status"], "reason": gate["reason"]}
+    if gate["action"] != "merge":
+        # corrupt / empty / insufficient all -> hold for a human
+        return {"action": "hold", "status": gate["status"], "reason": gate["reason"]}
+    if abuse_reasons:
+        return {"action": "hold", "status": "suspicious",
+                "reason": "; ".join(abuse_reasons)}
+    return {"action": "merge", "status": "ok",
+            "reason": f"{valid_new} clean new row(s); validated"}
 
 
 # --------------------------------------------------------------------------
@@ -142,7 +224,8 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Auto-merge clean contribution PRs to the HF dataset.")
     ap.add_argument("--repo", help="HF dataset URL or id (default: config dataset_repo).")
     ap.add_argument("--dry-run", action="store_true", help="Decide only; merge nothing.")
-    ap.add_argument("--max-rows", type=int, default=2000, help="Hold PRs larger than this.")
+    ap.add_argument("--max-rows", type=int, default=None,
+                    help="Hold PRs larger than this (default: config automerge.max_rows_per_pr).")
     ap.add_argument("--max-corrupt-ratio", type=float, default=0.0,
                     help="Allowed invalid fraction (default 0: any invalid row -> hold).")
     ap.add_argument("--token", help="HF write token (or HF_TOKEN, or cached login).")
@@ -164,6 +247,15 @@ def main(argv=None):
         return 1
     api = HfApi(token=token)
 
+    acfg = cfg.get("automerge", {})
+    max_rows = args.max_rows if args.max_rows is not None else acfg.get("max_rows_per_pr", 2000)
+    # Reference distribution for outlier detection: the local sample dataset.
+    try:
+        with open(rd.default_dataset_path(), encoding="utf-8") as fh:
+            reference_rows = json.load(fh)
+    except OSError:
+        reference_rows = []
+
     try:
         prs = list(api.get_repo_discussions(repo_id=repo_id, repo_type="dataset",
                                              discussion_type="pull_request",
@@ -179,8 +271,10 @@ def main(argv=None):
         rows, errs = load_pr_rows(api, repo_id, num, added)
         valid, invalid = rd.partition_rows(rows)
         valid_new = dedup_count(valid)
+        abuse = abuse_scan(valid, reference_rows, acfg)
         verdict = pr_verdict(added, removed, modified, len(rows), len(invalid),
-                             valid_new, errs, args.max_rows, args.max_corrupt_ratio)
+                             valid_new, errs, max_rows, args.max_corrupt_ratio,
+                             abuse_reasons=abuse)
         entry = {"pr": num, "title": pr.title, "added_files": added,
                  "rows": len(rows), "valid": len(valid), "invalid": len(invalid),
                  **verdict}

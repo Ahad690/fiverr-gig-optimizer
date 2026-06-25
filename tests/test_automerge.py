@@ -60,6 +60,51 @@ class TestPrVerdict(unittest.TestCase):
                           file_errors=0, max_rows=2000, max_corrupt_ratio=0.0)
         self.assertEqual(v["action"], "hold")
 
+    def test_abuse_reasons_hold_a_clean_pr(self):
+        v = am.pr_verdict(CONTRIB, [], [], rows=5, invalid_count=0, valid_new=5,
+                          file_errors=0, max_rows=2000, max_corrupt_ratio=0.0,
+                          abuse_reasons=["category 'X' median is 50x reference"])
+        self.assertEqual(v["action"], "hold")
+        self.assertEqual(v["status"], "suspicious")
+
+
+ACFG = {"max_price": 50000, "max_review_count": 1_000_000, "max_gig_count": 5_000_000,
+        "min_unique_ratio": 0.5, "ordering_violation_max_ratio": 0.3,
+        "outlier_factor": 10, "outlier_min_rows": 3}
+
+
+def _row(cat="Programming & Tech", b=30, s=90, p=250, **kw):
+    r = {"category": cat, "subcategory": "X", "title": "i will do x",
+         "basic_price": b, "standard_price": s, "premium_price": p,
+         "review_count": 100, "gig_count_in_search": 1000, "tags": ["x"]}
+    r.update(kw)
+    return r
+
+
+class TestAbuseScan(unittest.TestCase):
+    def test_clean_passes(self):
+        ref = [_row(b=25), _row(b=35), _row(b=30)]
+        rows = [_row(b=28), _row(b=32), _row(b=30)]
+        self.assertEqual(am.abuse_scan(rows, ref, ACFG), [])
+
+    def test_price_ceiling_flagged(self):
+        rows = [_row(p=999999)]
+        self.assertTrue(any("ceiling" in r for r in am.abuse_scan(rows, [], ACFG)))
+
+    def test_ordering_violation_flagged(self):
+        # all rows have basic > premium
+        rows = [_row(b=500, s=200, p=50) for _ in range(4)]
+        self.assertTrue(any("violate" in r for r in am.abuse_scan(rows, [], ACFG)))
+
+    def test_duplicate_flood_flagged(self):
+        rows = [_row(b=30) for _ in range(6)]  # all identical
+        self.assertTrue(any("unique" in r for r in am.abuse_scan(rows, [], ACFG)))
+
+    def test_price_outlier_vs_reference_flagged(self):
+        ref = [_row(b=30), _row(b=30), _row(b=30)]          # reference median ~30
+        rows = [_row(b=3000), _row(b=3000), _row(b=3000)]   # 100x outlier
+        self.assertTrue(any("outlier" in r for r in am.abuse_scan(rows, ref, ACFG)))
+
 
 if __name__ == "__main__":
     unittest.main()
