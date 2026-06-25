@@ -22,7 +22,7 @@ authored by the model — those are your decisions, not market measurements.
 ## Install
 
 ```
-/plugin marketplace add <github-username>/fiverr-gig-optimizer
+/plugin marketplace add Ahad690/fiverr-gig-optimizer
 /plugin install fiverr-gig-optimizer@fiverr-tools
 ```
 

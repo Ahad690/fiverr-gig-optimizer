@@ -1,7 +1,7 @@
 {
   "name": "fiverr-tools",
   "description": "Research-backed tools for Fiverr sellers — deterministic gig optimization with no guessed market numbers.",
-  "owner": { "name": "<github-username>" },
+  "owner": { "name": "Ahad690" },
   "plugins": [
     {
       "name": "fiverr-gig-optimizer",

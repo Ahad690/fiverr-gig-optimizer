@@ -42,12 +42,11 @@ The scoring core needs none of them.
 ## 3. Install
 
 ```
-/plugin marketplace add <github-username>/fiverr-gig-optimizer
+/plugin marketplace add Ahad690/fiverr-gig-optimizer
 /plugin install fiverr-gig-optimizer@fiverr-tools
 ```
 
-Replace `<github-username>` with the repo owner. To pin a version, add a tag or
-commit SHA. Verify the package locally any time with:
+To pin a version, add a release tag or commit SHA. Verify the package locally any time with:
 
 ```
 claude plugin validate .
