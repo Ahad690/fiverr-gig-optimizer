@@ -63,8 +63,14 @@ measurements* — generating them is allowed. They get scored next.
   for that keyword. Write `top_gigs` to a temp file to feed Step 4.
 - **Path B (manual):** ask the user to paste the "X services available" count
   Fiverr shows for the keyword. Never fabricate it.
-- **Path C (live scrape, opt-in):** if the user gives a scraper key + actor id,
-  run `scrape.py` then `build_benchmarks.py` (see those scripts' --help).
+- **Path C (live scrape, opt-in):** run
+  `scrape.py --query "<kw>" [--category "<cat>"] [--limit N]`. The primary
+  engine (vendored Perseus reader) needs no key and returns the real search
+  total as `gig_count_in_search`; on a non-residential IP set `PROXY_URL`. With
+  an Apify key it can fall back to the configured actor (which cannot supply the
+  search total — count then comes from a manual paste). Then run
+  `build_benchmarks.py` to build the pools + index. Live scraping is the user's
+  responsibility under Fiverr's ToS.
 
 **Step 4 — Score (FR7/FR8).** For each keyword:
 `score_keyword.py --keyword "<kw>" --gig-count <N> [--top-gigs top.json]`.

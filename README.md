@@ -92,8 +92,11 @@ for the full keep/strip list.
 
 - **No Chrome/Edge:** `build_pdfs.py` warns and exits 0; the HTML catalog still
   renders. PDFs are optional.
+- **Scrape returns nothing / "blocked":** the primary engine relies on TLS
+  impersonation. It works from a residential IP; from a datacenter/VPN IP set
+  `PROXY_URL` to a residential proxy, or configure the Apify fallback (with a key).
 - **HTTP 429 on scrape:** you're rate-limited — wait and retry, or lower
-  `--limit`.
+  `--limit` (the engine already throttles ~2s/request; raise `RATE_LIMIT_DELAY`).
 - **Low-confidence pricing:** a tier had fewer than `min_samples` prices; the
   number is shown but flagged. Add data (manual or scrape) to firm it up.
 - **Low match confidence / no match:** the sample dataset doesn't cover your

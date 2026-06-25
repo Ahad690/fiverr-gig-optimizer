@@ -2,7 +2,10 @@
 # The scoring core (score_keyword.py, analyze_pricing.py, query_dataset.py)
 # uses only the Python standard library and needs none of these.
 
-requests>=2.31          # HTTP for scrape.py
+# Live scrape (Path C) — primary engine: vendored Perseus reader
+curl-cffi>=0.7          # browser-TLS impersonation to read Fiverr's SSR blob
+beautifulsoup4>=4.12    # HTML parsing for the Perseus reader
+requests>=2.31          # HTTP for the Apify fallback engine
 huggingface_hub>=0.23   # opening dataset PRs from contribute.py
 
 # Optional: only needed if you regenerate the seed or build benchmarks from
