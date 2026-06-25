@@ -1,0 +1,12 @@
+{
+  "name": "fiverr-tools",
+  "description": "Research-backed tools for Fiverr sellers — deterministic gig optimization with no guessed market numbers.",
+  "owner": { "name": "<github-username>" },
+  "plugins": [
+    {
+      "name": "fiverr-gig-optimizer",
+      "source": "./",
+      "description": "Research-backed Fiverr gig optimizer (Claude Code skill)."
+    }
+  ]
+}

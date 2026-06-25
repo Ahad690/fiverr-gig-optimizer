@@ -1,0 +1,60 @@
+{
+  "seller": { "name": "Alex Rivera", "brand": "Rivera AI", "website": "https://rivera.ai", "photo": "" },
+  "data_provenance": {
+    "pricing_source": "sample_dataset",
+    "pricing_generated_at": "2025-12-01",
+    "competition_source": "sample_dataset",
+    "match_confidence": "HIGH"
+  },
+  "strategy": {
+    "monthlyTarget": "$10,000",
+    "primaryCategory": "Programming & Tech",
+    "phase1Count": 2, "phase2Count": 1, "phase3Count": 0
+  },
+  "gigs": [
+    {
+      "id": 1,
+      "phase": 1,
+      "title": "I will build a custom ai chatbot with n8n automation",
+      "cat": "Programming & Tech > AI Chatbots",
+      "tags": ["ai chatbot", "n8n", "automation", "openai", "workflow"],
+      "desc": "Need an AI chatbot that actually does things? I build custom ai chatbot systems wired into n8n automation so your bot books calls, updates your CRM, and answers from your own docs. You get a tested OpenAI-powered assistant, connected workflows, and a short handover call. Clear scope, fast replies, and source files included on Standard and up. Message me your use case for a quick plan before you order.",
+      "competition": { "count": 1243, "tier": "MEDIUM", "source": "sample_dataset", "match_confidence": "HIGH" },
+      "scores": { "competition": 76, "demand": 71, "opportunity": 74, "flags": [] },
+      "xsell": "CROSS-SELLS TO: Gig #2, Gig #3",
+      "pricing": {
+        "basic":    { "name": "Starter",    "title": "Single-flow chatbot", "price": 90,  "del": "3 days",  "rev": "2", "items": ["1 chat flow", "OpenAI integration", "Web embed"] },
+        "standard": { "name": "Business",    "title": "Chatbot + automation", "price": 199, "del": "6 days",  "rev": "3", "items": ["Up to 3 flows", "n8n automation", "CRM connect", "Source files"] },
+        "premium":  { "name": "Enterprise",  "title": "Full RAG assistant",   "price": 450, "del": "12 days", "rev": "5", "items": ["RAG on your docs", "Unlimited flows", "Analytics", "30-day support"] }
+      },
+      "img": {
+        "bg1": "#030a0a", "bg2": "#061818", "accent": "#06b6d4",
+        "headline": "AI CHATBOT", "sub": "Custom GPT + n8n for your site",
+        "badge": "MEDIUM COMPETITION", "tools": ["OpenAI", "LangChain", "n8n"],
+        "pdfWhat": "Custom AI chatbot wired into n8n automation."
+      }
+    },
+    {
+      "id": 2,
+      "phase": 1,
+      "title": "I will create n8n automation workflows for your business",
+      "cat": "Programming & Tech > n8n Automation",
+      "tags": ["n8n", "automation", "workflow", "integration", "zapier"],
+      "desc": "Stop doing the same task by hand. I create n8n automation workflows that connect your apps — forms, email, Slack, Sheets, your CRM — so data moves itself. You tell me the steps; I build, test, and document the workflow and hand it over running. Reliable, well-labeled nodes and a walkthrough video included on Standard and up.",
+      "competition": { "count": 180, "tier": "LOW", "source": "sample_dataset", "match_confidence": "MEDIUM" },
+      "scores": { "competition": 71, "demand": null, "opportunity": 71, "flags": ["demand_unavailable"] },
+      "xsell": "CROSS-SELLS TO: Gig #1",
+      "pricing": {
+        "basic":    { "name": "Starter",   "title": "One workflow",      "price": 60,  "del": "3 days", "rev": "2", "items": ["1 workflow", "Up to 5 nodes", "Basic test"] },
+        "standard": { "name": "Business",   "title": "Multi-app workflow", "price": 150, "del": "5 days", "rev": "3", "items": ["Up to 3 workflows", "Error handling", "Walkthrough video"] },
+        "premium":  { "name": "Enterprise", "title": "Automation suite",   "price": 380, "del": "10 days","rev": "5", "items": ["Up to 8 workflows", "Monitoring", "Docs", "14-day support"] }
+      },
+      "img": {
+        "bg1": "#0a0612", "bg2": "#160a22", "accent": "#8b5cf6",
+        "headline": "N8N AUTOMATION", "sub": "Connect your apps, save hours",
+        "badge": "LOW COMPETITION", "tools": ["n8n", "Make", "Zapier"],
+        "pdfWhat": "Custom n8n workflows connecting your business apps."
+      }
+    }
+  ]
+}

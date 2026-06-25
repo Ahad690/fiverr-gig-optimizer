@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: A4; margin: 16mm; }
+  * { box-sizing: border-box; }
+  body { font: 12px/1.55 Georgia, "Times New Roman", serif; color: #1a1a1a; margin: 0; }
+  .accent { color: __ACCENT__; }
+  header { border-bottom: 3px solid __ACCENT__; padding-bottom: 10px; margin-bottom: 18px; }
+  .kicker { letter-spacing: 2px; text-transform: uppercase; font-size: 10px; color: #666; }
+  h1 { font-size: 24px; margin: 6px 0 4px; }
+  .cat { color: #666; font-size: 12px; }
+  .what { font-size: 14px; font-style: italic; margin: 14px 0; }
+  .desc { white-space: pre-wrap; margin: 0 0 18px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid #ddd; }
+  th { background: __ACCENT__; color: #fff; font-family: system-ui, sans-serif; font-size: 11px; }
+  ul { margin: 0; padding-left: 16px; }
+  footer { margin-top: 20px; font-size: 10px; color: #888; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="kicker">Fiverr Gig — __SELLER__</div>
+    <h1 class="accent">__TITLE__</h1>
+    <div class="cat">__CAT__</div>
+  </header>
+  <p class="what">__WHAT__</p>
+  <p class="desc">__DESC__</p>
+  <table>
+    <thead><tr><th>Package</th><th>Price</th><th>Delivery</th><th>Includes</th></tr></thead>
+    <tbody>__TIER_ROWS__</tbody>
+  </table>
+  <footer>Tools: __TOOLS__ · Prices benchmarked from real competitor data.</footer>
+</body>
+</html>

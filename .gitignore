@@ -1,0 +1,23 @@
+# Local working data (never committed — see §7.4)
+*.local.json
+
+# Secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+
+# Generated output
+fiverr-catalog.html
+gig-config.json
+*.pdf
+
+# OS
+.DS_Store
+Thumbs.db

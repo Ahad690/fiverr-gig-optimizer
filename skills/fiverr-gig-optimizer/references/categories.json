@@ -1,0 +1,33 @@
+{
+  "Programming & Tech": {
+    "AI Development": ["AI Chatbots", "AI Agents", "AI Applications", "AI Integrations"],
+    "Website Development": ["Business Websites", "E-Commerce Development", "Landing Pages", "Web Applications"],
+    "Automation": ["Workflow Automation", "Zapier Automation", "n8n Automation", "Make Automation"],
+    "Mobile App Development": ["Cross-platform Apps", "Android Apps", "iOS Apps"],
+    "Software Development": ["Web Programming", "Desktop Applications", "APIs & Integrations"]
+  },
+  "Graphics & Design": {
+    "Logo & Brand Identity": ["Logo Design", "Brand Style Guides", "Business Cards & Stationery"],
+    "Web & App Design": ["Website Design", "App Design", "UX Design", "Landing Page Design"],
+    "Art & Illustration": ["Illustration", "Portraits & Caricatures", "Pattern Design"]
+  },
+  "Digital Marketing": {
+    "Search": ["SEO", "Local SEO", "E-Commerce SEO", "SEM"],
+    "Social": ["Social Media Marketing", "Paid Social", "Influencer Marketing"],
+    "Methods & Techniques": ["Email Marketing", "Marketing Strategy", "Marketing Automation"]
+  },
+  "Writing & Translation": {
+    "Content Writing": ["Articles & Blog Posts", "Website Content", "Product Descriptions"],
+    "Editing & Critique": ["Proofreading & Editing", "Beta Reading"],
+    "Translation & Transcription": ["Translation", "Transcription", "Localization"]
+  },
+  "Video & Animation": {
+    "Editing & Post-Production": ["Video Editing", "Visual Effects", "Subtitles & Captions"],
+    "Animation": ["Character Animation", "Logo Animation", "Whiteboard & Animated Explainers"]
+  },
+  "Music & Audio": {
+    "Production & Writing": ["Music Production", "Songwriters", "Beat Making"],
+    "Audio Engineering & Post": ["Mixing & Mastering", "Audio Editing"],
+    "Voice Over": ["Voice Over"]
+  }
+}

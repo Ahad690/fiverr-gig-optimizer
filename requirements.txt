@@ -1,0 +1,10 @@
+# Runtime dependencies (see §13).
+# The scoring core (score_keyword.py, analyze_pricing.py, query_dataset.py)
+# uses only the Python standard library and needs none of these.
+
+requests>=2.31          # HTTP for scrape.py
+huggingface_hub>=0.23   # opening dataset PRs from contribute.py
+
+# Optional: only needed if you regenerate the seed or build benchmarks from
+# large CSVs and prefer pandas over the stdlib csv module.
+# pandas>=2.0
