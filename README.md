@@ -148,6 +148,28 @@ the numbers are *authentic*. Auto-merge trades human review for scale; the
 dataset is versioned, so any bad merge is revertible. Tighten the gates, or keep
 the Action on `--dry-run` and merge by hand, if you prefer.
 
+#### CI token setup
+
+The Action authenticates with a Hugging Face token stored as the repo secret
+`HF_TOKEN`. Create a **fine-grained** token at
+[huggingface.co/settings/tokens](https://huggingface.co/settings/tokens),
+scoped to **just the dataset repo** (least privilege). Under **Repositories
+permissions**, add your `<owner>/fiverr-gigs` repo and check exactly:
+
+- **Write access to contents/settings of selected repos** — create commits / merge PRs
+- **Interact with discussions / Open pull requests on selected repos** — open, comment, merge
+
+Leave everything else unchecked (no Inference, Webhooks, Billing, Jobs, Org).
+Then set the secret:
+
+```
+gh secret set HF_TOKEN -R <owner>/fiverr-gig-optimizer
+```
+
+Use a **dedicated fine-grained token**, not an `hf auth login` OAuth token —
+OAuth tokens expire and will eventually break the scheduled run.
+(`refresh_dataset.py` needs no token; it only reads the public dataset.)
+
 ## No ML, no auto-scraping, no guessed numbers
 
 - No machine learning, training, or ranking prediction — scoring is rule-based.
