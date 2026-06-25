@@ -178,9 +178,12 @@ python3 scripts/score_keyword.py --keyword "ai chatbot n8n" --gig-count 24
 # Look a keyword up in the sample dataset
 python3 scripts/query_dataset.py --keyword "ai chatbot n8n"
 
-# Price a category from a per-tier price file
+# Price a category from a per-tier price file.
+# --category is a top-level key in pricing-pools.local.json, formatted
+# "Category > Subcategory" exactly as it appears in your data (open the file
+# to see the available keys).
 python3 scripts/analyze_pricing.py --prices pricing-pools.local.json \
-    --category "Programming & Tech > AI Development > AI Chatbots" --experience New
+    --category "Programming & Tech > AI Development" --experience New
 
 # Render a catalog you already have
 python3 scripts/build_catalog.py gig-config.json --out fiverr-catalog.html
