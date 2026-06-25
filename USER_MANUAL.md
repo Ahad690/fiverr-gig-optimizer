@@ -26,7 +26,10 @@ guesses one. If the data isn't there, it asks you or says so.
 - **Python 3.8+** on your PATH (the scripts run via `python3`).
 - *Optional:* **Google Chrome or Microsoft Edge** — only if you want per-gig
   PDFs. Without it, you still get the HTML catalog.
-- *Optional:* an **Apify-compatible scraper key** — only for the live-data path.
+- *Optional:* **live-scrape deps** (`curl-cffi`, `beautifulsoup4`) — only for
+  Path C. The default scrape engine needs **no API key** (best from a
+  residential IP; otherwise set `PROXY_URL`).
+- *Optional:* an **Apify key** — only for the Path C *fallback* engine.
 - *Optional:* a **Hugging Face token** — only if you contribute data back.
 
 Install the optional Python packages only if you'll scrape or contribute:
@@ -108,23 +111,36 @@ first pass. Weak matches fall through to Path B.
 The skill scores precisely that count. This is the most reliable free option
 because the number is live and specific to your keyword.
 
-### Path C — Live scrape (opt-in, your own key)
-Pulls fresh gigs for your categories so pricing and demand are current.
+### Path C — Live scrape (opt-in)
+Pulls fresh gigs so pricing, demand, **and the real competition count** are
+current. It has two engines.
+
+**Default engine (no key, recommended).** Reads Fiverr's own page data directly
+and uniquely recovers the real **"X services available" total**, writing it as
+`gig_count_in_search` — the one number the sample and Apify paths can't give you.
 
 ```
-# 1) configure your actor id once
-#    edit scoring-config.json -> "scraper": { "actor_id": "<your-actor-id>" }
-
-# 2) set your key
-export APIFY_TOKEN=your_token_here        # macOS/Linux
-setx APIFY_TOKEN "your_token_here"        # Windows (new shell after)
-
-# 3) scrape, then build the working files
-python3 scripts/scrape.py --query "ai chatbot" --category "Programming & Tech" --limit 50
+python3 scripts/scrape.py --query "ai chatbot" --category "Programming & Tech" --limit 30
 python3 scripts/build_benchmarks.py --input benchmarks.local.json
 ```
 
-`scrape.py` writes `benchmarks.local.json` (raw rows, USD-normalized).
+- Works from a **residential IP** (a normal home connection) with no proxy.
+  On a datacenter/VPN IP, set a residential proxy first:
+  `export PROXY_URL=...` (Windows: `setx PROXY_URL "..."`, new shell after).
+- `--pages N` scans more search pages; `--limit N` caps how many gig pages it
+  opens for pricing detail.
+
+**Fallback engine (Apify, optional).** If the default engine is blocked and you
+have Apify residential proxies, set a key and force it. Note: no Apify actor
+returns the search total, so `gig_count_in_search` stays empty on this path —
+use a manual count for that number.
+
+```
+export APIFY_TOKEN=your_token_here          # Windows: setx APIFY_TOKEN "..."
+python3 scripts/scrape.py --query "ai chatbot" --engine apify --limit 30
+```
+
+`scrape.py` writes `benchmarks.local.json` (USD-normalized canonical rows).
 `build_benchmarks.py` turns it into `pricing-pools.local.json` and
 `dataset-index.local.json`. All `*.local.json` files stay on your machine
 (they're git-ignored). Scraping is **your responsibility** under Fiverr's ToS —
@@ -199,16 +215,32 @@ Re-run after editing — output changes deterministically.
 ## 9. Contributing data back (opt-in)
 
 After a live scrape you can share your **anonymized** rows to grow the community
-dataset. It's never automatic and always previewable:
+dataset.
+
+**Contribution is OFF by default. Nothing ever leaves your machine unless you
+deliberately run the command in Step 2.** There is no background upload and no
+auto-share setting — the "toggle" is simply whether you run `contribute.py`
+*without* `--dry-run`. Two independent on-switches must both be flipped: dropping
+`--dry-run` **and** having `HF_TOKEN` set (without the token it stops and shares
+nothing).
+
+**Step 1 — preview (safe; shares nothing):**
 
 ```
-# Preview EXACTLY what would be shared — opens no PR
 python3 scripts/contribute.py --input benchmarks.local.json --dry-run
+```
 
-# Actually open a Hugging Face dataset PR (needs HF_TOKEN)
-export HF_TOKEN=your_hf_token
+This prints the exact cleaned, de-duplicated rows that *would* be shared and
+opens no PR. Inspect it.
+
+**Step 2 — turn it on (actually share):**
+
+```
+export HF_TOKEN=your_hf_token               # Windows: setx HF_TOKEN "..."
 python3 scripts/contribute.py --input benchmarks.local.json --contributor "Your Name"
 ```
+
+This opens a pull request to the community Hugging Face dataset.
 
 A PII guard strips every seller-identifying field (username, profile/gig URLs,
 country, review text, IDs, images) before anything leaves your machine and
@@ -224,9 +256,10 @@ keep/strip list: [`DATA_POLICY.md`](DATA_POLICY.md).
 | **Skill asks for a count instead of giving one** | The sample data didn't match that keyword (low/no confidence). Paste the Fiverr "X services available" count (Path B). This is by design — it won't guess. |
 | **Pricing says "low confidence"** | Too few competitor prices for that tier. Add data via a manual count or a live scrape. |
 | **No PDFs generated** | Chrome/Edge wasn't found. The HTML catalog is unaffected; PDFs are optional. |
-| **`HTTP 429` during scrape** | You're rate-limited. Wait, then retry with a smaller `--limit`. |
-| **`authentication failed` during scrape** | Wrong/missing scraper key. Check `--api-key` or `APIFY_TOKEN`. |
-| **`no actor_id configured`** | Set `scraper.actor_id` in `scoring-config.json` or pass `--actor-id`. |
+| **Scrape returns nothing / "blocked" (default engine)** | The default engine needs a residential IP. From a datacenter/VPN IP, `export PROXY_URL=<residential proxy>` and retry, or use a manual count. |
+| **`HTTP 429` during scrape** | You're rate-limited. Wait, then retry with a smaller `--limit` (or raise `RATE_LIMIT_DELAY`). |
+| **`authentication failed` during scrape** | Only the **Apify fallback** (`--engine apify`) needs a key. Check `--api-key` or `APIFY_TOKEN`. The default engine needs no key. |
+| **`no actor_id configured`** | Apify fallback only: set `scraper.actor_id` in `scoring-config.json` or pass `--actor-id`. |
 | **`huggingface_hub is required`** | `pip install -r requirements.txt` before contributing. |
 | **Catalog opens but a thumbnail looks blank** | Make sure the gig's `img` block has `headline`/`accent`; re-run the skill if you hand-edited `gig-config.json`. |
 

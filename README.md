@@ -38,15 +38,25 @@ with `claude plugin validate .`.
    for a count instead of inventing one.
 2. **Manual counts.** Open Fiverr, search your keyword, paste the
    "X services available" count. The skill scores exactly that number.
-3. **Live scrape (opt-in, your key).** Provide an Apify-compatible token and
-   actor id; `scrape.py` pulls fresh gigs for your categories, then
-   `build_benchmarks.py` builds the pricing pools and lookup index.
+3. **Live scrape (opt-in).** `scrape.py` reads fresh gigs for your categories
+   and — uniquely — recovers the real search total as `gig_count_in_search`.
+   The **default engine needs no API key** (works from a residential IP; set
+   `PROXY_URL` otherwise). An optional **Apify fallback** (your key) covers
+   proxy-backed retries. Then `build_benchmarks.py` builds the pricing pools
+   and lookup index.
 
-### Getting and passing a scraper key
+### Live-scrape engines
 
-The skill never ships a key. Supply your own via `--api-key` or the
-`APIFY_TOKEN` environment variable, and set `scraper.actor_id` in
-`scoring-config.json` (or pass `--actor-id`). Scraping costs are yours.
+- **Default (no key):** a vendored Perseus reader
+  (`scripts/vendor/`, MIT — from `KyuRish/fiverr-mcp-server`) parses Fiverr's
+  page data via browser-TLS impersonation. Best from a **residential IP**;
+  otherwise set `PROXY_URL` to a residential proxy. This is the **only** engine
+  that returns `gig_count_in_search` (the "X services available" total).
+  Needs `curl-cffi` + `beautifulsoup4` (`pip install -r requirements.txt`).
+- **Fallback (Apify, optional):** run with `--engine apify`, pass
+  `--api-key`/`APIFY_TOKEN`, and set `scraper.actor_id` in
+  `scoring-config.json`. It **cannot** supply the search total (use a manual
+  count for that). Scraping costs are yours.
 
 ## Scoring (auditable, tunable)
 
@@ -68,17 +78,27 @@ hidden in the model.
 
 ## Contributing data
 
-Contribution is **opt-in** and anonymized. `contribute.py` strips all
-seller-identifying fields to the keep-list, deduplicates, and opens a pull
-request to the community Hugging Face dataset; you're credited in
-`CONTRIBUTORS.md`. Preview exactly what would be shared with
-`contribute.py --input <file> --dry-run`. See [`DATA_POLICY.md`](DATA_POLICY.md)
+Contribution is **opt-in and OFF by default** — nothing is shared unless you
+explicitly run `contribute.py` *without* `--dry-run` **and** set `HF_TOKEN`.
+There is no background upload and no auto-share setting.
+
+1. **Preview (shares nothing):**
+   `python3 scripts/contribute.py --input benchmarks.local.json --dry-run`
+   prints the exact cleaned, de-duplicated rows that *would* be shared.
+2. **Turn it on:** set `HF_TOKEN`, then
+   `python3 scripts/contribute.py --input benchmarks.local.json --contributor "Your Name"`
+   opens a pull request to the community Hugging Face dataset.
+
+`contribute.py` strips all seller-identifying fields to the keep-list,
+deduplicates, and credits you in `CONTRIBUTORS.md`. A PII guard aborts the
+upload if any disallowed field is present. See [`DATA_POLICY.md`](DATA_POLICY.md)
 for the full keep/strip list.
 
 ## No ML, no auto-scraping, no guessed numbers
 
 - No machine learning, training, or ranking prediction — scoring is rule-based.
-- No scraping by default; live scraping is opt-in and uses your own key.
+- No scraping by default; live scraping is opt-in (the default engine needs no
+  key — an Apify key is only for the optional fallback).
 - No model-estimated competition counts or prices, anywhere.
 
 ## License
