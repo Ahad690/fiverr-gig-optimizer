@@ -1,0 +1,31 @@
+name: Auto-merge dataset PRs
+
+# Merges safe, schema-validated contribution PRs to the Hugging Face dataset.
+# Requires a repo secret HF_TOKEN with write scope on the dataset.
+# Tip: switch the run command to `--dry-run` to only report (merge by hand).
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 6 * * *"   # daily at 06:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install huggingface_hub
+      - name: Auto-merge clean contribution PRs
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "HF_TOKEN secret not set — skipping (add it with write scope)."; exit 0
+          fi
+          python skills/fiverr-gig-optimizer/scripts/automerge_prs.py --token "$HF_TOKEN"

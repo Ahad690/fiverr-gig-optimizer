@@ -126,6 +126,28 @@ file that won't parse or a corrupt fraction above `--max-corrupt-ratio` is
 there are fewer than `--min-new` clean, new rows). Scoring keeps reading the
 local file afterwards, so determinism is preserved — the file just gets richer.
 
+### Auto-merging contributions (maintainer bot)
+
+When contributions arrive faster than you can review them,
+`automerge_prs.py` merges the safe ones automatically:
+
+```
+python3 scripts/automerge_prs.py --dry-run   # decide only, merge nothing
+python3 scripts/automerge_prs.py             # merge clean PRs, hold the rest
+```
+
+It auto-merges a PR **only** when it's purely additive (`contributions/*.json`
+only — nothing removed or modified), under `--max-rows`, and every row passes
+schema/range/PII validation (`--max-corrupt-ratio`, default `0` = any invalid
+row holds the PR). Anything else is commented and left open for a human. The
+scheduled GitHub Action `.github/workflows/automerge-dataset-prs.yml` runs it for
+you — add an `HF_TOKEN` repo secret with write scope.
+
+**Caveat:** schema validation proves rows are well-formed and PII-free, not that
+the numbers are *authentic*. Auto-merge trades human review for scale; the
+dataset is versioned, so any bad merge is revertible. Tighten the gates, or keep
+the Action on `--dry-run` and merge by hand, if you prefer.
+
 ## No ML, no auto-scraping, no guessed numbers
 
 - No machine learning, training, or ranking prediction — scoring is rule-based.
