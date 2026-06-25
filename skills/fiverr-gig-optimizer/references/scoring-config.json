@@ -12,7 +12,7 @@
   },
   "lookup": { "match_threshold": 0.5, "min_rows": 5, "top_n": 10 },
   "scraper": { "base_url": "https://api.apify.com/v2", "actor_id": "<actor-id-here>" },
-  "dataset_repo": "https://huggingface.co/datasets/<owner>/fiverr-gigs",
+  "dataset_repo": "https://huggingface.co/datasets/Ahad690/fiverr-gigs",
   "fx": {
     "base": "USD",
     "rates_as_of": "2026-06-01",
