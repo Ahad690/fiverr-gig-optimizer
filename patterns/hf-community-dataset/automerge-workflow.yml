@@ -1,0 +1,29 @@
+# Copy to .github/workflows/automerge.yml in your project.
+# Requires a repo secret HF_TOKEN (fine-grained, write + discussions on the dataset).
+name: Auto-merge dataset PRs
+
+on:
+  workflow_dispatch: {}          # manual: gh workflow run "Auto-merge dataset PRs"
+  schedule:
+    - cron: "0 6 * * *"          # daily 06:00 UTC (the automatic trigger)
+
+permissions:
+  contents: read                 # GITHUB_TOKEN scope — unrelated to HF auth
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install huggingface_hub
+      - name: Auto-merge clean contribution PRs
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "HF_TOKEN secret not set — skipping."; exit 0
+          fi
+          python path/to/automerge.py --token "$HF_TOKEN"   # add --dry-run to only report
