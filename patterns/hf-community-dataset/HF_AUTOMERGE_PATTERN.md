@@ -208,6 +208,72 @@ keep-list, assert no forbidden fields, and upload to
 
 ---
 
+## 8. The contribution nudge (`notifications.py`)
+
+A self-growing dataset needs people to actually contribute, so prompt them — but
+put the nudge **where the *user* sees it, not on stderr.** This is the key lesson:
+in an agent-run tool (Claude Code, an MCP server, any CLI an LLM drives), **stderr
+is read by the agent, not the human.** A "please contribute" line printed to
+stderr is noise in the agent's tool output and the end user never sees it. So:
+
+1. **Embed the nudge in the deliverable artifact** the user opens (the generated
+   HTML report, PDF, dashboard, etc.) — not in logs/stderr.
+2. **Only the deliverable step emits it** (e.g. the report renderer), not the
+   intermediate scripts the agent loops over — otherwise it spams the agent's
+   context and fires many times per session.
+3. **Config-toggle, default on** — `ui.contribution_reminder: true`. One flag the
+   maintainer (or end user) can flip off.
+4. **HTML-escape** the repo link; read it from the same config as everything else.
+
+Generalized helper — drop in next to `validate.py` / `automerge.py`:
+
+```python
+# notifications.py — the user-facing contribution nudge (rendered into the
+# deliverable, never printed to stderr).
+import html, json, os
+
+def _cfg(cfg=None):
+    if cfg is not None:
+        return cfg
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        with open(os.path.join(here, "config.json"), encoding="utf-8") as fh:
+            return json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+def contribution_banner_html(cfg=None):
+    """Return an HTML banner (or '' if disabled). Render this into your report."""
+    cfg = _cfg(cfg)
+    if not cfg.get("ui", {}).get("contribution_reminder", True):
+        return ""
+    repo = html.escape(cfg.get("dataset_repo", "https://huggingface.co/"))
+    return (
+        '<div class="contrib" style="margin:12px 0;padding:10px 14px;'
+        'border-left:4px solid #2d6;border-radius:8px;background:#0e1a12;'
+        'color:#bdf5cf;font-size:14px">'
+        '✨ Help this dataset grow — '
+        f'<a href="{repo}" target="_blank" rel="noopener" '
+        'style="color:#5ee08a;font-weight:600">contribute your anonymized data</a>'
+        ' so everyone gets better results.</div>'
+    )
+```
+
+Use it in your report renderer (the deliverable), e.g.:
+```python
+import notifications
+html_out = TEMPLATE.replace("__CONTRIB__", notifications.contribution_banner_html())
+```
+
+For a pure-CLI tool with no visual artifact, the equivalent is to print the line
+to **stdout** as part of the final human-facing summary (still gated by the flag,
+still only on the last step) — never bury it in stderr/logs.
+
+*(Reference implementation: `skills/fiverr-gig-optimizer/scripts/reminders.py`,
+rendered by `build_catalog.py` into the catalog the user opens.)*
+
+---
+
 *Reference implementation this was extracted from:
 [Ahad690/fiverr-gig-optimizer](https://github.com/Ahad690/fiverr-gig-optimizer)
 (`skills/fiverr-gig-optimizer/scripts/{contribute,refresh_dataset,automerge_prs}.py`).*
