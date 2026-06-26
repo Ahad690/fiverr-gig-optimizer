@@ -152,8 +152,6 @@ def main(argv=None):
 
     result = score(args.keyword, args.gig_count, top_gigs, cfg)
     print(json.dumps(result, indent=2))
-    import reminders
-    reminders.contribution_reminder(cfg)
     return 0
 
 

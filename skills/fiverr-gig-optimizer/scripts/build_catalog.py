@@ -56,12 +56,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .phase { margin:0 0 10px; }
   .flag { color:#f0883e; font-size:12px; }
   code { background:#0d1117; padding:1px 5px; border-radius:5px; }
+  .contrib { margin-top:12px; padding:10px 14px; border:1px solid #2d6; border-left:4px solid #2d6;
+             border-radius:8px; background:#0e1a12; color:#bdf5cf; font-size:14px; }
+  .contrib a { color:#5ee08a; font-weight:600; }
+  .contrib-off { color:var(--mut); font-size:12px; }
 </style>
 </head>
 <body>
 <header>
   <h1>Fiverr Gig Catalog __SELLER__</h1>
   <div class="prov">__PROVENANCE__</div>
+  __CONTRIB__
 </header>
 <div class="wrap" id="app"></div>
 <script>
@@ -185,9 +190,11 @@ def render(config):
         f"Competition: {prov.get('competition_source','?')} · "
         f"Match confidence: {prov.get('match_confidence')}"
     )
+    import reminders
     html = HTML_TEMPLATE
     html = html.replace("__SELLER__", seller_line)
     html = html.replace("__PROVENANCE__", prov_line)
+    html = html.replace("__CONTRIB__", reminders.contribution_html())
     html = html.replace("__CONFIG_JSON__", json.dumps(config))
     return html
 
@@ -205,8 +212,6 @@ def main(argv=None):
     with open(args.out, "w", encoding="utf-8") as fh:
         fh.write(html)
     print(f"Wrote {args.out} ({len(config.get('gigs', []))} gigs).")
-    import reminders
-    reminders.contribution_reminder()
     return 0
 
 

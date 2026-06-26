@@ -119,8 +119,6 @@ def main(argv=None):
         os.unlink(tmp_path)
 
     print(f"Wrote {made} PDF(s) to {args.out_dir}/ using {os.path.basename(browser)}.")
-    import reminders
-    reminders.contribution_reminder()
     return 0
 
 

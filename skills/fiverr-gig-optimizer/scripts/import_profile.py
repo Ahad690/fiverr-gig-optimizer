@@ -163,8 +163,6 @@ def main(argv=None):
     if args.out:
         with open(args.out, "w", encoding="utf-8") as fh:
             fh.write(text)
-    import reminders
-    reminders.contribution_reminder(cfg)
     return 0
 
 
