@@ -135,6 +135,8 @@ def main(argv=None):
 
     result = analyze(prices_by_tier, args.experience, cfg)
     print(json.dumps(result, indent=2))
+    import reminders
+    reminders.contribution_reminder(cfg)
     return 0
 
 

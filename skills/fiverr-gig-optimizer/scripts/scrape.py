@@ -340,6 +340,8 @@ def main(argv=None):
                 pr = contribute.open_hf_pr(cleaned, cfg["dataset_repo"], token, args.contributor)
                 contribute.append_contributor(args.contributor)
                 print(f"Opened contribution PR: {pr}")
+    import reminders
+    reminders.contribution_reminder(cfg)
     return 0
 
 

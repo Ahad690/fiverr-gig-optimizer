@@ -205,6 +205,8 @@ def main(argv=None):
     with open(args.out, "w", encoding="utf-8") as fh:
         fh.write(html)
     print(f"Wrote {args.out} ({len(config.get('gigs', []))} gigs).")
+    import reminders
+    reminders.contribution_reminder()
     return 0
 
 

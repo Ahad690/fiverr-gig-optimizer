@@ -162,6 +162,8 @@ def main(argv=None):
 
     result = query(args.keyword, dataset, cfg, top_n=args.top_n)
     print(json.dumps(result, indent=2))
+    import reminders
+    reminders.contribution_reminder(cfg)
     return 0
 
 

@@ -11,6 +11,7 @@
     "new_seller": { "basic_p": 10, "standard_p": 25, "premium_p": 50 }
   },
   "lookup": { "match_threshold": 0.5, "min_rows": 5, "top_n": 10 },
+  "ui": { "contribution_reminder": true },
   "automerge": {
     "max_rows_per_pr": 2000,
     "max_price": 50000,

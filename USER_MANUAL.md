@@ -248,6 +248,9 @@ and nothing is hidden in the model. Common edits:
 - **`pricing.new_seller` / `default`** — the percentiles each strategy uses.
 - **`fx.rates`** — static currency table (`usd = price * rate`); update
   `rates_as_of` when you change it.
+- **`ui.contribution_reminder`** — set to `false` to silence the colorful
+  "help grow the dataset" line printed after each run (it's on by default and
+  prints to stderr, so it never affects saved files or piped output).
 
 Re-run after editing — output changes deterministically.
 
