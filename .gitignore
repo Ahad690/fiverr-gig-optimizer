@@ -1,5 +1,9 @@
-# Local working data (never committed — see §7.4)
+# Local working data (never committed — see §7.4), incl. the timestamped
+# backups local_data.py makes instead of ever destroying a file
 *.local.json
+*.bak-*.json
+*.corrupt-*.json
+*.json.tmp
 
 # Secrets
 .env

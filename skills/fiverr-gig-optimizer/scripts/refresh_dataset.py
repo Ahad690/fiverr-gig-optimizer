@@ -228,10 +228,11 @@ def main(argv=None):
         print(json.dumps(report, indent=2))
         return 0
 
-    # Merge.
+    # Merge. Purely additive (all local rows kept, clean new rows appended) and
+    # written atomically so a crash mid-write can't corrupt the local file.
     combined = local_rows + new_rows
-    with open(local_path, "w", encoding="utf-8") as fh:
-        json.dump(combined, fh, indent=2, ensure_ascii=False)
+    import local_data
+    local_data.write_json_atomic(local_path, combined)
     report["merged"] = len(new_rows)
     report["local_rows_after"] = len(combined)
     print(json.dumps(report, indent=2))

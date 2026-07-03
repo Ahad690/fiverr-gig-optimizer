@@ -141,14 +141,20 @@ python3 scripts/scrape.py --query "ai chatbot" --engine apify --limit 30
 ```
 
 `scrape.py` writes `benchmarks.local.json` (USD-normalized canonical rows).
-**By default each scrape overwrites that file.** Two flags change that:
+**By default each scrape accumulates into that file** (append-only, de-duped) —
+several scrapes build one bigger local benchmark, and **no data is ever
+destroyed**: the file just keeps growing until you decide to contribute it.
+Related flags:
 
-- `--append` — accumulate into the file (de-duped) instead of overwriting, so
-  several scrapes build one bigger local benchmark.
+- `--overwrite` — start the file fresh. Even then nothing is lost: the previous
+  file is first renamed to a timestamped `.bak-*.json`. (If the file is ever
+  unreadable, it's preserved as `.corrupt-*.json` rather than clobbered, and
+  writes are atomic so a crash can't corrupt it.)
 - `--contribute --token <hf>` — after scraping, push the anonymized rows to the
   community dataset in one step (opt-in, token-gated, and announced — never
   silent). Set `scraper.auto_contribute: true` in `scoring-config.json` to make
-  it the default for every scrape (still needs a token).
+  it the default for every scrape (still needs a token). Contributing does
+  **not** clear your local file.
 
 `build_benchmarks.py` turns the file into `pricing-pools.local.json` and
 `dataset-index.local.json`. All `*.local.json` files stay on your machine

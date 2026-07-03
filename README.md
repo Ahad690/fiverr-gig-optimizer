@@ -114,9 +114,13 @@ for the full keep/strip list.
 anonymized upload right after scraping. It's **token-gated and always announced**
 — never a silent background push. To make it habitual, set
 `scraper.auto_contribute: true` in `scoring-config.json` (still requires a token;
-still prints what it's sharing). And `scrape.py … --append` **accumulates** each
-scrape into the local file (de-duped) instead of overwriting it, so you can build
-a bigger local benchmark over several runs.
+still prints what it's sharing).
+
+**No data is ever destroyed.** Every scrape **accumulates** into the local file
+by default (append-only, de-duped), so your benchmark grows across runs and is
+always ready to contribute later. `--overwrite` starts fresh but first renames
+the previous file to a timestamped `.bak-*.json`; an unreadable file is
+preserved as `.corrupt-*.json` rather than clobbered; all writes are atomic.
 
 ### Refreshing from the community dataset (the read side)
 

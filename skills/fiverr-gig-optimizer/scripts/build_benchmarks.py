@@ -99,10 +99,11 @@ def main(argv=None):
     pools = build_pools(rows)
     index = build_index(rows)
 
-    with open(args.pools, "w", encoding="utf-8") as fh:
-        json.dump(pools, fh, indent=2, ensure_ascii=False)
-    with open(args.index, "w", encoding="utf-8") as fh:
-        json.dump(index, fh, indent=2, ensure_ascii=False)
+    # Pools/index are DERIVED artifacts (rebuildable from --input any time), so
+    # replacing them is fine — but write atomically so a crash can't corrupt them.
+    import local_data
+    local_data.write_json_atomic(args.pools, pools)
+    local_data.write_json_atomic(args.index, index)
 
     print(f"Wrote {args.pools} ({len(pools)} categories) and "
           f"{args.index} ({len(index)} terms) from {len(rows)} rows.")

@@ -19,11 +19,16 @@ Delivery fix: Fiverr's package `duration` is in HOURS; we divide by 24 to get
 delivery days. Prices normalize to USD via the static fx table
 (usd = price * fx.rates[currency]).
 
+Persistence: scrapes ACCUMULATE into --out by default (append-only, de-duped)
+so repeated runs grow one local benchmark and no data is ever destroyed;
+--overwrite starts fresh but first renames the previous file to a timestamped
+.bak-*.json. Corrupt files are preserved as .corrupt-*.json. Writes are atomic.
+
 CLI:
     scrape.py --query "ai chatbot" [--category "Programming & Tech"] \
         [--engine auto|kyurish|apify] [--pages 1] [--limit 20] \
         [--api-key KEY | env APIFY_TOKEN] [--actor-id ID] \
-        [--out benchmarks.local.json] [--config path.json]
+        [--out benchmarks.local.json] [--overwrite] [--config path.json]
 
 Exit codes: 0 success; 2 auth error (apify); 3 rate-limited (apify);
 4 other API error; 5 blocked/empty (primary, no fallback available);
@@ -94,8 +99,9 @@ def _packages_to_tiers(packages, fx, duration_in_hours=True):
 def accumulate(existing, new):
     """Merge new canonical rows into existing, de-duped by title|category|subcategory.
 
-    Existing rows are kept first; genuinely new rows are appended. Used by
-    --append so repeated scrapes grow a local file instead of overwriting it.
+    Existing rows are kept first; genuinely new rows are appended. This is the
+    DEFAULT persistence mode: repeated scrapes grow the local file, they never
+    overwrite it (no data is destroyed).
     """
     def key(r):
         return (r.get("title"), r.get("category"), r.get("subcategory"))
@@ -107,6 +113,32 @@ def accumulate(existing, new):
         seen.add(key(r))
         merged.append(r)
     return merged
+
+
+def persist_rows(out_path, rows, overwrite=False):
+    """Persist scraped rows without ever destroying previous data.
+
+    Default: accumulate into the existing file (de-duped, append-only).
+    overwrite=True: start the file fresh, but only after renaming the previous
+    file to a timestamped .bak-*.json — the old bytes are always kept. A
+    corrupt existing file is likewise preserved as .corrupt-*.json (by
+    local_data.load_json_list), never clobbered. All writes are atomic.
+
+    Returns (final_rows, note) where note describes what happened.
+    """
+    import local_data
+    if overwrite:
+        backup = local_data.backup_existing(out_path)
+        note = f"overwrite: previous file kept as {backup}" if backup else "fresh file"
+        final = list(rows)
+    else:
+        existing = local_data.load_json_list(out_path)
+        before = len(existing)
+        final = accumulate(existing, rows)
+        note = (f"accumulate: {before} existing + {len(rows)} scraped -> "
+                f"{len(final)} rows (+{len(final) - before} new)")
+    local_data.write_json_atomic(out_path, final)
+    return final, note
 
 
 def map_kyurish(search_item, detail, total_results, category_override, fx, today):
@@ -260,7 +292,10 @@ def main(argv=None):
     ap.add_argument("--actor-id", help="Override Apify actor id.")
     ap.add_argument("--out", default=DEFAULT_OUT)
     ap.add_argument("--append", action="store_true",
-                    help="Accumulate into --out (de-duped) instead of overwriting it.")
+                    help="Deprecated no-op: accumulating into --out is now the default.")
+    ap.add_argument("--overwrite", action="store_true",
+                    help="Start --out fresh instead of accumulating. The previous file "
+                         "is first renamed to a timestamped .bak-*.json — never destroyed.")
     ap.add_argument("--contribute", action="store_true",
                     help="After scraping, push anonymized rows to the HF dataset (opt-in).")
     ap.add_argument("--contributor", default="anonymous", help="Credited name for --contribute.")
@@ -299,22 +334,11 @@ def main(argv=None):
                             scraper_cfg["base_url"], actor_id, fx, today)
 
     rows = [r for r in rows if r.get("title")]
-    fresh = len(rows)
 
-    # --append: accumulate into the existing file (de-duped) instead of overwriting.
-    if args.append and os.path.exists(args.out):
-        try:
-            with open(args.out, encoding="utf-8") as fh:
-                existing = json.load(fh)
-        except (json.JSONDecodeError, OSError):
-            existing = []
-        before = len(existing)
-        rows = accumulate(existing, rows)
-        print(f"append: {before} existing + {fresh} scraped -> {len(rows)} rows "
-              f"(+{len(rows) - before} new).", file=sys.stderr)
-
-    with open(args.out, "w", encoding="utf-8") as fh:
-        json.dump(rows, fh, indent=2, ensure_ascii=False)
+    # Persist without destroying anything: accumulate by default (append-only,
+    # de-duped); --overwrite starts fresh but backs the old file up first.
+    rows, note = persist_rows(args.out, rows, overwrite=args.overwrite)
+    print(note, file=sys.stderr)
     counts = {r["gig_count_in_search"] for r in rows if r.get("gig_count_in_search")}
     print(f"Wrote {len(rows)} canonical rows to {args.out} "
           f"(gig_count_in_search: {sorted(counts) or 'null'}).")
