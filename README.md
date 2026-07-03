@@ -218,3 +218,15 @@ python -m unittest discover -s tests -p "test_*.py" -v
 
 Project layout, scoring spec, and build order live in
 `fiverr-gig-optimizer-PRD-v1.1.md`.
+
+## Related projects (same honesty architecture)
+
+fiverr-gig-optimizer is part of a family of **local-first, no-fabricated-numbers
+Claude Code skills** — deterministic scripts, provenance-labeled outputs, an
+HTML deliverable, append-only local data, opt-in federation. The shared design
+is documented in [patterns/hf-community-dataset](patterns/hf-community-dataset/HF_AUTOMERGE_PATTERN.md).
+
+- [**GrowthKit**](https://github.com/Ahad690/growthkit-skill) — honest
+  short-form-video marketing (TikTok/Reels/Shorts) for SaaS & apps.
+- [**AppScope** (open-app-intel)](https://github.com/Ahad690/open-app-intel) —
+  self-hosted app market intelligence with confidence-banded estimates.
