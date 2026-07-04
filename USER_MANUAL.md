@@ -89,6 +89,10 @@ claude plugin validate .
 5. It benchmarks pricing, assembles the catalog, and writes
    **`fiverr-catalog.html`**. Open it in a browser: each gig has a thumbnail,
    copy buttons for title/description/tags, a PNG download, and the launch plan.
+   Prefer an AI-generated thumbnail instead? Each gig also includes a
+   **copy-ready AI image prompt** (under the thumbnail) describing the same
+   design brief — paste it into ChatGPT/DALL·E/Midjourney and use that image
+   in place of the built-in PNG.
 
 That's the whole loop — no key, no setup.
 

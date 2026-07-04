@@ -3,6 +3,8 @@
 
 Reads a gig-config.json (§7.2) and writes a single fiverr-catalog.html with:
   - canvas thumbnails (1280x769) drawn from each gig's img block
+  - a copy-ready AI image-generation prompt per gig (same design brief as the
+    canvas, for users who prefer ChatGPT/DALL-E/Midjourney over the built-in PNG)
   - copy-to-clipboard buttons for title / description / tags
   - per-gig PNG download (from the canvas)
   - a cross-sell map and a phase-based action plan
@@ -60,6 +62,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
              border-radius:8px; background:#0e1a12; color:#bdf5cf; font-size:14px; }
   .contrib a { color:#5ee08a; font-weight:600; }
   .contrib-off { color:var(--mut); font-size:12px; }
+  details.aiprompt { margin-top:8px; }
+  details.aiprompt summary { cursor:pointer; color:var(--mut); font-size:13px; }
+  details.aiprompt pre { white-space:pre-wrap; background:#0d1117; border:1px solid var(--line);
+    border-radius:8px; padding:12px; font-size:12.5px; line-height:1.5; color:#cdd7e1; }
 </style>
 </head>
 <body>
@@ -112,6 +118,30 @@ function wrapText(ctx,text,x,y,maxW,lh){
 function copy(text,btn){ navigator.clipboard.writeText(text).then(()=>{
   const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=o,1200); }); }
 
+// Compose an AI image-generation prompt describing the SAME design the canvas
+// draws (deterministic — built only from the gig's own img block, no invention).
+// For users who prefer generating the thumbnail with ChatGPT/DALL-E/Midjourney
+// instead of downloading the canvas PNG.
+function aiPrompt(gig){
+  const img = gig.img || {};
+  const accent = img.accent || '#06b6d4';
+  const bg1 = img.bg1 || '#0b0f14', bg2 = img.bg2 || '#141b24';
+  const lines = [
+    'Design a professional Fiverr gig thumbnail, exactly 1280x769 pixels (landscape).',
+    `Service: "${gig.title || ''}"${gig.cat ? ' (category: ' + gig.cat + ')' : ''}.`,
+    `Dominant element: the headline "${(img.headline || gig.title || '').toUpperCase()}" in very large, bold, white uppercase sans-serif type, left-aligned with generous margins.`,
+  ];
+  if (img.sub) lines.push(`Below it, a smaller secondary line in the accent color: "${img.sub}".`);
+  if (img.badge) lines.push(`A small rounded pill badge in the accent color with dark text reading "${img.badge}".`);
+  if (img.tools && img.tools.length) lines.push(`A footer row of tool names in small muted text: ${img.tools.join(' • ')}.`);
+  lines.push(
+    `Background: a dark, subtle diagonal gradient from ${bg1} to ${bg2}. Single accent color ${accent}, used for a thin bar above the headline, the badge, and one or two simple geometric shapes.`,
+    'Style: flat, modern, minimal tech aesthetic; strong contrast; crisp typography; plenty of negative space.',
+    'Do NOT include: photos of people, stock-photo textures, watermarks, logos, or any text other than the strings quoted above. All quoted text must be spelled exactly as written.'
+  );
+  return lines.join('\n');
+}
+
 const app = document.getElementById('app');
 CONFIG.gigs.forEach(gig=>{
   const el=document.createElement('div'); el.className='gig';
@@ -132,7 +162,12 @@ CONFIG.gigs.forEach(gig=>{
         <canvas width="1280" height="769" id="cv${gig.id}"></canvas>
         <div>
           <button class="alt" id="dl${gig.id}">Download PNG</button>
+          <button class="alt" id="cp${gig.id}">Copy AI image prompt</button>
         </div>
+        <details class="aiprompt">
+          <summary>AI image prompt — paste into ChatGPT / DALL·E / Midjourney instead of using the PNG</summary>
+          <pre id="pp${gig.id}"></pre>
+        </details>
       </div>
       <div>
         <div class="tiers">
@@ -153,6 +188,9 @@ CONFIG.gigs.forEach(gig=>{
     <p class="desc">${(gig.desc||'').replace(/</g,'&lt;')}</p>`;
   app.appendChild(el);
   draw(document.getElementById('cv'+gig.id), gig.img||{});
+  const prompt = aiPrompt(gig);
+  document.getElementById('pp'+gig.id).textContent = prompt;
+  document.getElementById('cp'+gig.id).onclick=e=>copy(prompt,e.target);
   document.getElementById('ct'+gig.id).onclick=e=>copy(gig.title||'',e.target);
   document.getElementById('cd'+gig.id).onclick=e=>copy(gig.desc||'',e.target);
   document.getElementById('cg'+gig.id).onclick=e=>copy(tags,e.target);
