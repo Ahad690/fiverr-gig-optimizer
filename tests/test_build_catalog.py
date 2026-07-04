@@ -50,14 +50,35 @@ class TestBuildCatalog(unittest.TestCase):
         self.assertIn("aiPrompt(", self.html)
         self.assertIn("ChatGPT / DALL·E / Midjourney", self.html)
 
-    def test_prompt_composed_from_gig_img_block_only(self):
-        # The composer must reference the img fields and thumbnail spec…
+    def test_fallback_prompt_composed_from_gig_img_block(self):
+        # No ai_prompt in CONFIG -> the deterministic fallback composer is used;
+        # it must reference the img fields and thumbnail spec…
         for needle in ("1280x769", "img.headline", "img.badge", "img.tools",
                        "img.accent", "spelled exactly as written"):
             self.assertIn(needle, self.html)
         # …and the gig's real data must be in the embedded CONFIG for it to use.
         self.assertIn("FAST DELIVERY", self.html)
         self.assertIn("n8n + OpenAI", self.html)
+
+    def test_model_authored_ai_prompt_takes_priority(self):
+        cfg = json.loads(json.dumps(CONFIG))
+        cfg["gigs"][0]["img"]["ai_prompt"] = (
+            "An isometric 3D scene of a friendly robot assembling chat bubbles "
+            'on a conveyor belt, headline "AI CHATBOT" spelled exactly as written, '
+            "1280x769 landscape, teal #06b6d4 accent, no watermarks."
+        )
+        cfg_path = os.path.join(self.dir, "gig-config2.json")
+        out = os.path.join(self.dir, "catalog2.html")
+        with open(cfg_path, "w", encoding="utf-8") as fh:
+            json.dump(cfg, fh)
+        r = subprocess.run([sys.executable, SCRIPT, cfg_path, "--out", out],
+                           capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        with open(out, encoding="utf-8") as fh:
+            html = fh.read()
+        # The authored prompt is embedded, and the renderer prefers it.
+        self.assertIn("isometric 3D scene of a friendly robot", html)
+        self.assertIn("gig.img.ai_prompt", html)
 
 
 if __name__ == "__main__":

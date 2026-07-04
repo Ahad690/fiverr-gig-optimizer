@@ -95,6 +95,19 @@ titles/tags/descriptions (lint rules in the playbook), pick phases and
 cross-sells, set per-gig thumbnail accent from the palette. The `competition`,
 `scores`, and `pricing` blocks are the script outputs — do not alter them.
 
+Also author `img.ai_prompt` for each gig — a rich prompt for an AI image model
+(ChatGPT/DALL·E/Midjourney), offered in the catalog as an alternative to the
+canvas PNG. Thumbnail design is offer design, so be creative here: describe a
+distinctive scene, composition, or visual metaphor suited to the service (an
+isometric workflow, a stylized robot at a desk, glowing pipeline nodes…) —
+not just flat text on a gradient. Requirements: specify 1280×769 landscape;
+quote the exact headline/badge strings that must appear and say "spelled
+exactly as written"; keep it consistent with the gig's accent color; forbid
+watermarks, logos, and any unquoted text. Never put claims in the image that
+aren't true of the seller (no "Top Rated", review counts, or client numbers
+unless supplied). If you skip `ai_prompt`, the catalog falls back to a
+deterministic prompt mirroring the canvas design.
+
 **Step 7 — Render (FR14/FR15).**
 `build_catalog.py gig-config.json` → `fiverr-catalog.html`. Optionally
 `build_pdfs.py gig-config.json` for per-gig PDFs (skips if no Chrome).

@@ -3,8 +3,11 @@
 
 Reads a gig-config.json (§7.2) and writes a single fiverr-catalog.html with:
   - canvas thumbnails (1280x769) drawn from each gig's img block
-  - a copy-ready AI image-generation prompt per gig (same design brief as the
-    canvas, for users who prefer ChatGPT/DALL-E/Midjourney over the built-in PNG)
+  - a copy-ready AI image-generation prompt per gig, for users who prefer
+    ChatGPT/DALL-E/Midjourney over the built-in PNG. Primary source is the
+    model-authored ``img.ai_prompt`` (written with the rest of the gig copy —
+    it can describe scenes/compositions the canvas can't draw); when absent,
+    a deterministic composer mirrors the canvas design as a fallback.
   - copy-to-clipboard buttons for title / description / tags
   - per-gig PNG download (from the canvas)
   - a cross-sell map and a phase-based action plan
@@ -118,10 +121,11 @@ function wrapText(ctx,text,x,y,maxW,lh){
 function copy(text,btn){ navigator.clipboard.writeText(text).then(()=>{
   const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=o,1200); }); }
 
-// Compose an AI image-generation prompt describing the SAME design the canvas
-// draws (deterministic — built only from the gig's own img block, no invention).
-// For users who prefer generating the thumbnail with ChatGPT/DALL-E/Midjourney
-// instead of downloading the canvas PNG.
+// FALLBACK image prompt: mirrors the flat canvas design, built only from the
+// gig's own img block. The PRIMARY path is gig.img.ai_prompt — authored by the
+// model while assembling gig-config.json (thumbnail design is offer design,
+// so creative freedom is allowed there; an image model can render scenes the
+// canvas can't). This composer covers configs that lack ai_prompt.
 function aiPrompt(gig){
   const img = gig.img || {};
   const accent = img.accent || '#06b6d4';
@@ -188,7 +192,9 @@ CONFIG.gigs.forEach(gig=>{
     <p class="desc">${(gig.desc||'').replace(/</g,'&lt;')}</p>`;
   app.appendChild(el);
   draw(document.getElementById('cv'+gig.id), gig.img||{});
-  const prompt = aiPrompt(gig);
+  // Prefer the model-authored prompt (richer: scenes/metaphors an image model
+  // can render); fall back to the deterministic canvas-mirror when absent.
+  const prompt = (gig.img && gig.img.ai_prompt) ? gig.img.ai_prompt : aiPrompt(gig);
   document.getElementById('pp'+gig.id).textContent = prompt;
   document.getElementById('cp'+gig.id).onclick=e=>copy(prompt,e.target);
   document.getElementById('ct'+gig.id).onclick=e=>copy(gig.title||'',e.target);
