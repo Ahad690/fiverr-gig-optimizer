@@ -1,4 +1,28 @@
+<div align="center">
+
+<img src="assets/mascot.png" width="130" alt="The fiverr-gig-optimizer robot scout, holding a checklist clipboard with a price tag">
+
 # fiverr-gig-optimizer
+
+**gig research that refuses to guess** 📋
+
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=20&duration=2600&pause=800&color=1DBF73&center=true&vCenter=true&width=720&height=42&lines=Fiverr+gig+research+that+refuses+to+guess;Competition%2C+demand+%26+pricing+from+auditable+scripts;No+data%3F+It+asks+you+%E2%80%94+never+invents" alt="fiverr-gig-optimizer — competition, demand and pricing from auditable scripts">
+
+<br/>
+
+![competition](https://img.shields.io/badge/competition-scored_from_real_counts-1dbf73?style=flat-square&labelColor=0a2e1c)
+![demand](https://img.shields.io/badge/demand-null_when_unknown-e8c66b?style=flat-square&labelColor=3a2806)
+![pricing](https://img.shields.io/badge/pricing-competitor_percentiles-79b8ff?style=flat-square&labelColor=10254f)
+
+<br/>
+
+<img src="assets/demo-catalog.png" width="860" alt="A rendered fiverr-catalog.html — gig cards with canvas thumbnails, 3-tier pricing from competitor percentiles, and a provenance line under every score">
+
+*The deliverable: every score carries a provenance line telling you where the number came from.*
+
+</div>
+
+<br/>
 
 A Claude Code skill that turns your list of services into an optimized,
 research-backed Fiverr gig catalog — titles, tags, 3-tier pricing,
@@ -230,3 +254,7 @@ is documented in [patterns/hf-community-dataset](patterns/hf-community-dataset/H
   short-form-video marketing (TikTok/Reels/Shorts) for SaaS & apps.
 - [**AppScope** (open-app-intel)](https://github.com/Ahad690/open-app-intel) —
   self-hosted app market intelligence with confidence-banded estimates.
+
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=waving&height=90&color=0:1dbf73,100:0a2e1c&section=footer" alt="" width="100%">
+</div>
