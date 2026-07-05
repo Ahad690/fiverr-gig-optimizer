@@ -33,6 +33,8 @@ guesses.**
 
 ## Why this isn't a fluff tool
 
+<img src="assets/mascot-shrug.png" width="150" align="right" alt="The robot scout holding its clipboard out to the viewer with a question mark on it — when it has no data, it asks you instead of guessing">
+
 Most "Fiverr optimizer" prompts tell the model to *mentally estimate* how many
 competitors a keyword has and what to charge. That output is hallucinated and
 changes every run. Here, the LLM never produces a market figure. Competition,
@@ -117,6 +119,8 @@ Edit the anchors, weights, thresholds, and FX table to retune — nothing is
 hidden in the model.
 
 ## Contributing data
+
+<img src="assets/mascot-hug.png" width="140" align="right" alt="The robot scout hugging a pull-request icon — contributions grow the community dataset">
 
 Contribution is **opt-in and OFF by default** — nothing is shared unless you
 explicitly run `contribute.py` *without* `--dry-run` **and** set `HF_TOKEN`.
@@ -256,5 +260,8 @@ is documented in [patterns/hf-community-dataset](patterns/hf-community-dataset/H
   self-hosted app market intelligence with confidence-banded estimates.
 
 <div align="center">
+<img src="assets/mascot-sleep.png" width="120" alt="The robot scout asleep against a stack of gig cards, battery low, zzz">
+<br>
+<sub><code>~ end of file · zero numbers were guessed ~</code></sub>
 <img src="https://capsule-render.vercel.app/api?type=waving&height=90&color=0:1dbf73,100:0a2e1c&section=footer" alt="" width="100%">
 </div>
