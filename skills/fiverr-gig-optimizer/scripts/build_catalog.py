@@ -143,7 +143,7 @@ function aiPrompt(gig){
     'Style: flat, modern, minimal tech aesthetic; strong contrast; crisp typography; plenty of negative space.',
     'Do NOT include: photos of people, stock-photo textures, watermarks, logos, or any text other than the strings quoted above. All quoted text must be spelled exactly as written.'
   );
-  return lines.join('\n');
+  return lines.join('\\n');
 }
 
 const app = document.getElementById('app');

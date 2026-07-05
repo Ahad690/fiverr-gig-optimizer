@@ -45,6 +45,25 @@ class TestBuildCatalog(unittest.TestCase):
         self.assertIn("canvas", self.html)
         self.assertIn("Download PNG", self.html)
 
+    def test_embedded_script_is_valid_javascript(self):
+        """Regression: a Python-interpreted escape (e.g. '\\n' in the template)
+        once emitted a literal newline inside a JS string, silently killing the
+        whole render script (header showed, zero gig cards). Validate the
+        embedded <script> parses — with node when available, else by checking
+        no string literal is broken across a line."""
+        import re
+        m = re.search(r"<script>(.*)</script>", self.html, re.S)
+        self.assertIsNotNone(m)
+        js = m.group(1)
+        self.assertIn(r"lines.join('\n')", js)  # the once-broken escape, intact
+        import shutil
+        if shutil.which("node"):
+            js_path = os.path.join(self.dir, "catalog.js")
+            with open(js_path, "w", encoding="utf-8") as fh:
+                fh.write(js)
+            r = subprocess.run(["node", "--check", js_path], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 0, r.stderr)
+
     def test_ai_prompt_ui_present(self):
         self.assertIn("Copy AI image prompt", self.html)
         self.assertIn("aiPrompt(", self.html)
