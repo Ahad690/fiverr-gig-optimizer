@@ -4,9 +4,13 @@
 
 # fiverr-gig-optimizer
 
-**gig research that refuses to guess** 📋
+**gurus sell you guesses about Fiverr. this one measures it — and says so when it can't.** 📋
 
 <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=20&duration=2600&pause=800&color=1DBF73&center=true&vCenter=true&width=720&height=42&lines=Fiverr+gig+research+that+refuses+to+guess;Competition%2C+demand+%26+pricing+from+auditable+scripts;No+data%3F+It+asks+you+%E2%80%94+never+invents" alt="fiverr-gig-optimizer — competition, demand and pricing from auditable scripts">
+
+<br/>
+
+**82 tests · a provenance line under every score · 0 market numbers guessed**
 
 <br/>
 
