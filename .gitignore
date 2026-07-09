@@ -25,3 +25,6 @@ gig-config.json
 # OS
 .DS_Store
 Thumbs.db
+
+# remembered federation contributor name (local only)
+.contributor

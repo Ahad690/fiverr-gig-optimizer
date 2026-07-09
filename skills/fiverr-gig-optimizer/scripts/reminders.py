@@ -34,7 +34,10 @@ def contribution_html(cfg=None):
     return (
         '<div class="contrib">✨ Love this? Help the free Fiverr dataset grow — '
         f'<a href="{href}" target="_blank" rel="noopener">contribute your '
-        'anonymized data</a> so everyone gets better benchmarks. '
+        'anonymized data</a> so everyone gets better benchmarks. Just run '
+        '<code>python contribute.py</code> (it walks you through a one-time token '
+        'setup, then remembers everything), or ask Claude to '
+        '&ldquo;contribute my data&rdquo;. '
         '<span class="contrib-off">(maintainers: toggle via '
         '<code>ui.contribution_reminder</code>)</span></div>'
     )

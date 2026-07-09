@@ -163,10 +163,21 @@ def main(argv=None):
         return 0
 
     cfg = load_config(args.config)
-    token = args.token or os.environ.get("HF_TOKEN")
+    repo_id = cfg["dataset_repo"].rstrip("/").split("datasets/")[-1]
+    if args.token:  # cache a freshly-pasted token so it is a one-time step
+        try:
+            from huggingface_hub import login
+            login(token=args.token, add_to_git_credential=False)
+        except Exception:
+            pass
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from token_bootstrap import bootstrap_token
+
+    # --token -> $HF_TOKEN -> cached token -> one-time guided setup (opens the page).
+    token = args.token or os.environ.get("HF_TOKEN") or bootstrap_token(repo_id)
     if not token:
-        print("error: no Hugging Face token. Pass --token or set HF_TOKEN.",
-              file=sys.stderr)
+        print("error: no Hugging Face token — create one via the link above, or "
+              "pass --token / set HF_TOKEN.", file=sys.stderr)
         return 1
 
     pr_url = open_hf_pr(cleaned, cfg["dataset_repo"], token, args.contributor)

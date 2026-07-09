@@ -111,7 +111,17 @@ deterministic prompt mirroring the canvas design.
 **Step 7 — Render (FR14/FR15).**
 `build_catalog.py gig-config.json` → `fiverr-catalog.html`. Optionally
 `build_pdfs.py gig-config.json` for per-gig PDFs (skips if no Chrome).
-After a live scrape, offer contribution (`contribute.py`, default no).
+After a live scrape, offer contribution (default no).
+
+**When the user agrees to contribute** (e.g. "contribute my data", "share it"):
+run `python contribute.py` from the repo root — it auto-locates
+`benchmarks.local.json`, strips PII, and previews. If it prints the token-setup
+guidance and a `huggingface.co/settings/tokens/new` link (no token cached yet),
+relay that link, tell them to create a fine-grained token with **Write** on
+`Ahad690/fiverr-gigs`, then re-run with the paste: `python contribute.py --token
+<pasted>` (cached, so it is one-time). Always show the `--dry-run` preview and
+confirm before the real upload. Never store or echo the token anywhere but the
+command; nothing uploads without it.
 
 ## Output format
 
